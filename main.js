@@ -98,6 +98,7 @@ class Game {
     init() {
         this.resizeCanvas();
         this.setupEventListeners();
+        this.titleScreen.classList.remove('active');
         this.gameLoop(0);
     }
 
