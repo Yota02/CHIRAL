@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chiralité - Une experience narrative</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Conteneur principal du jeu -->
+    <div id="game-container">
+        <!-- Canvas pour le rendu graphique des mini-jeux -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Overlay UI pour les dialogues et l'interface -->
+        <div id="ui-overlay">
+            <!-- Ecran titre -->
+            <div id="title-screen" class="screen active">
+                <h1 class="glitch" data-text="CHIRALITÉ">CHIRAL</h1>
+                <p class="subtitle">Une experience narrative interactive</p>
+                <button id="start-button" class="terminal-button">
+                    <span class="blink">&gt;</span> INITIALISER SEQUENCE
+                </button>
+                
+                <!-- Menu de selection des chapitres -->
+                <div id="chapter-menu">
+                    <button id="chapter-menu-toggle" class="terminal-button secondary">
+                        SELECTION CHAPITRE
+                    </button>
+                    <div id="chapter-list" class="hidden">
+                        <button class="chapter-select-btn" data-chapter="0">Chapitre 1</button>
+                        <button class="chapter-select-btn" data-chapter="1">Chapitre 2</button>
+                        <button class="chapter-select-btn" data-chapter="2">Chapitre 3</button>
+                        <button class="chapter-select-btn" data-chapter="3">Chapitre 4</button>
+                        <button class="chapter-select-btn" data-chapter="4">Chapitre 5</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ecran de transition entre chapitres -->
+            <div id="transition-screen" class="screen">
+                <p id="transition-date" class="date-text"></p>
+                <p id="transition-title" class="chapter-title"></p>
+            </div>
+
+            <!-- Zone de dialogue / narration -->
+            <div id="dialogue-box">
+                <div id="dialogue-text"></div>
+                <button id="continue-button" class="terminal-button hidden">
+                    <span class="blink">&gt;</span> CONTINUER
+                </button>
+            </div>
+
+            <!-- Interface de chapitre (instructions specifiques) -->
+            <div id="chapter-ui">
+                <p id="chapter-instructions"></p>
+            </div>
+
+            <!-- Message de fin de chapitre -->
+            <div id="end-message" class="screen">
+                <p id="end-text" class="typewriter"></p>
+            </div>
+        </div>
+
+        <!-- Effet CRT scanlines -->
+        <div id="scanlines"></div>
+    </div>
+
+    <!-- Chargement des scripts -->
+    <script src="main.js" type="module"></script>
+</body>
+</html>

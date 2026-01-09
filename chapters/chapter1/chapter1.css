@@ -1,0 +1,402 @@
+/* =============================================
+   CHAPTER 1 - LA SYNTHESE
+   Styles scopes avec prefixe ch1-
+   ============================================= */
+
+/* Container - positionne en haut a gauche */
+.ch1-container {
+    position: absolute;
+    top: 10px;
+    left: 10px; /* Changed from right to left */
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    pointer-events: none; /* Permet les clics canvas a travers les espaces */
+}
+
+.ch1-container.hidden {
+    display: none;
+}
+
+/* Panneaux - style partage */
+.ch1-panel {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    width: 210px;
+    pointer-events: auto; /* Active les clics sur les panneaux */
+}
+
+/* =============================================
+   PANNEAU MEDICAMENTS
+   ============================================= */
+
+#ch1-medications-panel {
+    min-height: 180px;
+}
+
+.ch1-money {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFD700;
+    font-family: 'Courier New', monospace;
+}
+
+.ch1-stats {
+    margin-top: 10px;
+}
+
+.ch1-stat-line {
+    font-size: 14px;
+    color: #44ff88;
+    margin: 5px 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.ch1-stat-line.ch1-dim {
+    color: #AAA;
+    font-size: 12px;
+}
+
+.ch1-stat-line.ch1-mirror {
+    color: #b944ff;
+}
+
+.ch1-med-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFF;
+    text-align: center;
+    margin: 10px 0;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Grille de pilules */
+.ch1-pills-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px 5px;
+    min-height: 50px;
+}
+
+.ch1-pill {
+    width: 22px;
+    height: 8px;
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.ch1-pill-left {
+    width: 50%;
+    height: 100%;
+    background: #E53935;
+    border-radius: 4px 0 0 4px;
+}
+
+.ch1-pill-right {
+    width: 50%;
+    height: 100%;
+    background: #FAFAFA;
+    border-radius: 0 4px 4px 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+/* =============================================
+   PANNEAU UPGRADES
+   ============================================= */
+
+#ch1-upgrades-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ch1-upgrade {
+    background: rgba(50, 50, 50, 0.7);
+    border: 2px solid rgba(100, 100, 100, 0.5);
+    border-radius: 5px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ch1-upgrade:hover {
+    background: rgba(70, 70, 70, 0.8);
+}
+
+.ch1-upgrade.ch1-can-buy {
+    background: rgba(0, 150, 0, 0.7);
+    border-color: rgba(0, 255, 0, 0.8);
+}
+
+.ch1-upgrade.ch1-can-buy:hover {
+    background: rgba(0, 180, 0, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.ch1-upgrade.ch1-maxed {
+    background: rgba(100, 100, 100, 0.7);
+    border-color: rgba(150, 150, 150, 0.5);
+    cursor: default;
+}
+
+.ch1-upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ch1-upgrade-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFF;
+    font-family: 'Arial', sans-serif;
+}
+
+.ch1-upgrade-cost {
+    font-size: 12px;
+    font-weight: bold;
+    color: #888;
+    font-family: 'Arial', sans-serif;
+}
+
+.ch1-upgrade.ch1-can-buy .ch1-upgrade-cost {
+    color: #FFD700;
+}
+
+.ch1-upgrade.ch1-maxed .ch1-upgrade-cost {
+    color: #FFD700;
+}
+
+.ch1-upgrade-info {
+    margin-top: 3px;
+}
+
+.ch1-upgrade-level {
+    font-size: 11px;
+    color: #AAA;
+    font-family: 'Arial', sans-serif;
+}
+
+.ch1-upgrade-desc {
+    font-size: 9px;
+    color: #999;
+    margin-top: 3px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+/* =============================================
+   SYSTEME DE TUTORIEL
+   ============================================= */
+
+.ch1-tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.ch1-tutorial-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.ch1-tutorial-bubble {
+    position: absolute;
+    background: rgba(20, 20, 20, 0.95);
+    border: 3px solid #44ff88;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 350px;
+    color: #FFF;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 0 30px rgba(68, 255, 136, 0.5);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+    z-index: 102; /* Above highlight */
+}
+
+.ch1-tutorial-bubble.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.ch1-tutorial-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #44ff88;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+}
+
+.ch1-tutorial-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #DDD;
+    margin-bottom: 15px;
+}
+
+.ch1-tutorial-content strong {
+    color: #44ff88;
+}
+
+.ch1-tutorial-content em {
+    color: #b944ff;
+}
+
+.ch1-tutorial-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.ch1-tutorial-btn {
+    padding: 8px 16px;
+    background: #44ff88;
+    border: none;
+    border-radius: 5px;
+    color: #111;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Arial', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.ch1-tutorial-btn:hover {
+    background: #66ffaa;
+    box-shadow: 0 0 10px rgba(68, 255, 136, 0.8);
+}
+
+.ch1-tutorial-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFF;
+}
+
+.ch1-tutorial-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.ch1-tutorial-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+/* Fleche pointant vers le bas */
+.ch1-tutorial-arrow.down {
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 15px 15px 0 15px;
+    border-color: #44ff88 transparent transparent transparent;
+}
+
+/* Fleche pointant vers la gauche */
+.ch1-tutorial-arrow.left {
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 15px 0 15px 15px;
+    border-color: transparent transparent transparent #44ff88;
+}
+
+/* Fleche pointant vers la droite */
+.ch1-tutorial-arrow.right {
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 15px 15px 15px 0;
+    border-color: transparent #44ff88 transparent transparent;
+}
+
+/* Indicateur de progression */
+.ch1-tutorial-progress {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.ch1-tutorial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: background 0.3s ease;
+}
+
+.ch1-tutorial-dot.active {
+    background: #44ff88;
+    box-shadow: 0 0 10px rgba(68, 255, 136, 0.8);
+}
+
+/* Zone de highlight pour mettre en evidence les elements */
+.ch1-tutorial-highlight {
+    position: fixed; /* Changed from absolute to fixed for better positioning */
+    border: 3px solid #44ff88;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(68, 255, 136, 0.6), inset 0 0 20px rgba(68, 255, 136, 0.2);
+    pointer-events: none;
+    z-index: 101; /* Above overlay (100) but below bubble (102) */
+    animation: ch1-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ch1-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(68, 255, 136, 0.6), inset 0 0 20px rgba(68, 255, 136, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(68, 255, 136, 1), inset 0 0 40px rgba(68, 255, 136, 0.4);
+    }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+    .ch1-container {
+        left: 5px; /* Changed from right to left */
+        top: 5px;
+    }
+
+    .ch1-panel {
+        width: 180px;
+        padding: 10px;
+    }
+
+    .ch1-upgrade {
+        padding: 6px 8px;
+    }
+
+    .ch1-tutorial-bubble {
+        max-width: 280px;
+        padding: 15px;
+    }
+
+    .ch1-tutorial-title {
+        font-size: 16px;
+    }
+
+    .ch1-tutorial-content {
+        font-size: 12px;
+    }
+}

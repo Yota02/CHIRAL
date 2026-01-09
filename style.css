@@ -1,0 +1,293 @@
+/* ===========================================
+   RESET & CONFIGURATION DE BASE
+   =========================================== */
+:root {
+    --bg-color: #050505;
+    --text-white: #ffffff;
+    --neon-cyan: #00f3ff;    /* Le bleu glitch */
+    --neon-magenta: #ff0055; /* Le rouge/rose glitch */
+    --font-main: 'Orbitron', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-white);
+    font-family: var(--font-main);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+/* Ajouter les styles pour le canvas */
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* ===========================================
+   EFFETS D'ÉCRAN (CRT & SCANLINES)
+   =========================================== */
+
+/* Lignes horizontales style TV */
+#scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.2) 50%,
+        rgba(0,0,0,0.2)
+    );
+    background-size: 100% 4px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Assombrissement des coins */
+#vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 50%, black 100%);
+    z-index: 11;
+    pointer-events: none;
+}
+
+#ui-overlay {
+    position: relative;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===========================================
+   TYPOGRAPHIE & TITRE GLITCH
+   =========================================== */
+
+#title-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.glitch-wrapper {
+    position: relative;
+    padding: 20px;
+}
+
+/* Le texte principal */
+h1.glitch {
+    font-size: clamp(4rem, 15vw, 10rem); /* Très gros texte responsive */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em; /* Espacement large comme sur l'image */
+    color: var(--text-white);
+    position: relative;
+    margin: 0;
+    
+    /* Ombre blanche légère pour faire ressortir du fond noir */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); 
+}
+
+/* Création des couches de glitch (Pseudo-éléments) */
+h1.glitch::before,
+h1.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color); /* Important pour cacher le texte dessous lors du décalage */
+}
+
+/* Couche Gauche (Cyan) */
+h1.glitch::after {
+    left: -3px;
+    text-shadow: -2px 0 var(--neon-cyan);
+    clip-path: inset(0 0 0 0);
+    animation: glitch-anim-cyan 2.5s infinite linear alternate-reverse;
+}
+
+/* Couche Droite (Magenta) */
+h1.glitch::before {
+    left: 3px;
+    text-shadow: 2px 0 var(--neon-magenta);
+    clip-path: inset(0 0 0 0);
+    animation: glitch-anim-magenta 3s infinite linear alternate-reverse;
+}
+
+/* ===========================================
+   BOUTON PRESS START
+   =========================================== */
+
+.subtitle-container {
+    margin-top: 5rem;
+}
+
+#start-button {
+    background: transparent;
+    border: none;
+    color: var(--text-white);
+    font-family: var(--font-main);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    padding: 10px 20px;
+}
+
+/* Animation de clignotement lent */
+.blink-text {
+    animation: blink 2s infinite ease-in-out;
+}
+
+#start-button:hover {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px var(--neon-cyan);
+    animation: none; /* Arrête le clignotement au survol */
+    opacity: 1;
+}
+
+/* ===========================================
+   MENU DE SELECTION DES CHAPITRES
+   =========================================== */
+
+/* Styles généraux du menu */
+#chapter-menu {
+    margin-top: 30px;
+    position: relative;
+}
+
+/* Bouton pour afficher/cacher le menu des chapitres */
+#chapter-menu-toggle {
+    background: rgba(68, 255, 136, 0.1);
+    border: 1px solid #44ff88;
+}
+
+/* Liste des chapitres */
+#chapter-list {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 17, 17, 0.95);
+    border: 2px solid #44ff88;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 200px;
+    z-index: 100;
+}
+
+/* Cache la liste des chapitres si elle a la classe "hidden" */
+#chapter-list.hidden {
+    display: none;
+}
+
+/* Boutons de sélection des chapitres */
+.chapter-select-btn {
+    background: rgba(68, 255, 136, 0.1);
+    border: 1px solid #44ff88;
+    color: #44ff88;
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+}
+
+/* Effet au survol des boutons de chapitre */
+.chapter-select-btn:hover {
+    background: rgba(68, 255, 136, 0.2);
+    transform: translateX(5px);
+}
+
+/* ===========================================
+   ANIMATIONS (KEYFRAMES)
+   =========================================== */
+
+/* Animation Cyan : découpe le texte horizontalement */
+@keyframes glitch-anim-cyan {
+    0% { clip-path: inset(10% 0 85% 0); transform: translate(-2px, 0); }
+    20% { clip-path: inset(85% 0 5% 0); transform: translate(2px, 0); }
+    40% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
+    60% { clip-path: inset(60% 0 15% 0); transform: translate(2px, 0); }
+    80% { clip-path: inset(5% 0 70% 0); transform: translate(-2px, 0); }
+    100% { clip-path: inset(40% 0 40% 0); transform: translate(2px, 0); }
+}
+
+/* Animation Magenta : découpe différente */
+@keyframes glitch-anim-magenta {
+    0% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+    20% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
+    40% { clip-path: inset(90% 0 5% 0); transform: translate(2px, 0); }
+    60% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 0); }
+    80% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 0); }
+    100% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 0); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Ecran de transition */
+#transition-screen {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#transition-screen.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Assurer que l'UI du chapitre 1 est visible */
+#ch1-ui {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#ch1-ui:not(.hidden) {
+    opacity: 1;
+}
+
+/* Classes utilitaires pour cacher des éléments */
+.hidden {
+    display: none !important;
+}
+
