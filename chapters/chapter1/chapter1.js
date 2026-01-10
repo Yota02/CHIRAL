@@ -22,6 +22,7 @@ export class Chapter1 {
         this.moleculeTimer = 0;
         this.moleculeRate = 1.0;
         this.medicationDuration = 10.0;
+        this.moleculeThreshold = 10; // Nouveau seuil dynamique pour les médicaments
 
         // Seuils & Objectifs
         this.EVENT_THRESHOLD = 15000; // Fin du chapitre
@@ -87,6 +88,18 @@ export class Chapter1 {
                 type: "immortality",
                 effect: 1,
                 hidden: true // Caché au départ
+            },
+            // Nouveau upgrade ajouté
+            {
+                name: "Réduction Molécules",
+                description: "Réduit de 1 le nombre de molécules nécessaires par médicament",
+                cost: 20,
+                costMultiplier: 2.0,
+                level: 0,
+                maxLevel: 9,
+                type: "molecule_threshold_reduction",
+                effect: 1,
+                hidden: false
             }
         ];
 
@@ -134,6 +147,7 @@ export class Chapter1 {
         this._lastTotalProduced = -1;
         this._lastMoleculesForMed = -1;
         this._lastMedCount = -1;
+        this._lastMoleculeThreshold = -1; // Nouveau tracking pour le seuil
 
         // Systeme de tutoriel
         this.tutorialActive = false;
@@ -261,9 +275,9 @@ export class Chapter1 {
         this.domElements.pillsContainer = document.getElementById('ch1-pills-container');
         this.domElements.pipetteAnimation = document.getElementById('ch1-pipette-animation');
 
-        // IMPORTANT: On cherche maintenant 5 upgrades (indices 0 à 4)
+        // IMPORTANT: On cherche maintenant 6 upgrades (indices 0 à 5)
         this.domElements.upgrades = []; // Reset array
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             const el = document.getElementById(`ch1-upgrade-${i}`);
             if (el) {
                 this.domElements.upgrades.push({
@@ -281,6 +295,8 @@ export class Chapter1 {
 
         // Mettre en cache les elements du tutoriel
         this.cacheTutorialReferences();
+        // Nouveau : référence pour le seuil dynamique
+        this.domElements.medThreshold = document.querySelector('#ch1-med-threshold');
     }
 
     cacheTutorialReferences() {
@@ -374,6 +390,14 @@ export class Chapter1 {
             this._lastMoleculesForMed = this.moleculesForMed;
             if (this.domElements.medProgress) {
                 this.domElements.medProgress.textContent = this.moleculesForMed;
+            }
+        }
+
+        // Nouveau : Mise à jour du seuil dynamique
+        if (this._lastMoleculeThreshold !== this.moleculeThreshold) {
+            this._lastMoleculeThreshold = this.moleculeThreshold;
+            if (this.domElements.medThreshold) {
+                this.domElements.medThreshold.textContent = this.moleculeThreshold;
             }
         }
 
@@ -548,16 +572,16 @@ export class Chapter1 {
     }
 
     checkMedicationCreation() {
-        while (this.moleculesForMed >= 10 && this.molecules >= 10) {
-            this.moleculesForMed -= 10;
-            this.molecules -= 10;
+        while (this.moleculesForMed >= this.moleculeThreshold && this.molecules >= this.moleculeThreshold) {
+            this.moleculesForMed -= this.moleculeThreshold;
+            this.molecules -= this.moleculeThreshold;
             this.spawnMedication();
 
             const { width, height } = this.game.getCanvasSize();
             const particleX = 80 + (Math.random() * 40 - 20);
             const particleY = height - 200;
 
-            this.spawnParticle(particleX, particleY, "-10", "#ff4444");
+            this.spawnParticle(particleX, particleY, `-${this.moleculeThreshold}`, "#ff4444");
         }
     }
 
@@ -625,6 +649,7 @@ export class Chapter1 {
         let productionMultiplier = 1;
         let durationBonus = 0;
         let durationMultiplier = 1;
+        let thresholdReduction = 0;
 
         this.upgrades.forEach(upgrade => {
             if (upgrade.level > 0) {
@@ -643,12 +668,16 @@ export class Chapter1 {
                         break;
                     case "immortality":
                         break;
+                    case "molecule_threshold_reduction":
+                        thresholdReduction += upgrade.effect * upgrade.level;
+                        break;
                 }
             }
         });
 
         this.moleculeRate = (1 + productionBonus) * productionMultiplier;
         this.medicationDuration = (10 + durationBonus) * durationMultiplier;
+        this.moleculeThreshold = Math.max(1, 10 - thresholdReduction); // Seuil minimum de 1
     }
 
     triggerMirrorRevolution() {
