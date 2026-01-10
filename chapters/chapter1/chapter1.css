@@ -5,14 +5,14 @@
 
 /* Container - positionne en haut a gauche */
 .ch1-container {
-    position: absolute;
+    position: fixed; /* Changé d'absolute à fixed pour ancrage au viewport */
     top: 10px;
     left: 10px;
-    width: 100%;
+    width: auto; /* Changé de 100% à auto pour s'adapter au contenu horizontal */
     height: 100%;
     z-index: 15;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Layout horizontal */
     gap: 20px;
     pointer-events: none; /* Permet les clics canvas a travers les espaces vides */
 }
@@ -28,7 +28,7 @@
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     padding: 15px;
-    width: 220px;
+    width: 220px; /* Remis à 220px pour desktop, ajustable */
     pointer-events: auto; /* Active les clics sur les panneaux */
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
@@ -381,63 +381,110 @@
 }
 
 /* =============================================
-   ANIMATION DE LA PIPETTE (MODIFIÉ)
+   ANIMATION DE LA PIPETTE (CORRIGÉ)
    ============================================= */
 
 .ch1-pipette-animation {
-    position: absolute;
-    top: -400px;    /* Départ hors écran (haut) */
-    right: -400px;  /* Départ hors écran (droite) */
-    width: 400px;   /* IMAGE GRANDE */
+    position: fixed;    /* Changé d'absolute à fixed pour viser le centre de l'écran */
+    top: -450px;        /* Départ hors écran (haut) */
+    right: -450px;      /* Départ hors écran (droite) */
+    width: 400px;       /* IMAGE GRANDE */
     height: auto;
     pointer-events: none;
-    z-index: 999;   /* Au-dessus de tout */
+    z-index: 999;       /* Au-dessus de tout */
     opacity: 0;
-    transform-origin: center center;
+    /* On retire transform-origin ici pour le gérer via l'image ou le mouvement global */
 }
 
 .ch1-pipette-animation img {
     width: 100%;
     height: auto;
     display: block;
-    /* Inclinaison pour pointer vers le centre depuis le haut-droit */
+    /* Rotation : Ajustez les degres selon votre image d'origine. 
+       -135deg est souvent correct pour une seringue verticale qui doit pointer vers le bas-gauche */
     transform: rotate(-45deg); 
     filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
 }
 
 /* La classe .active déclenche l'animation */
 .ch1-pipette-animation.active {
-    animation: ch1-inject-sequence 3s ease-in-out forwards;
+    animation: ch1-inject-sequence 3.5s ease-in-out forwards;
 }
 
 @keyframes ch1-inject-sequence {
-    /* 0% : Départ (invisible et loin) */
+    /* 0% : Départ (Haut-Droite, Invisible) */
     0% {
-        top: -400px;
-        right: -400px;
-        opacity: 1;
+        top: -450px;
+        right: -450px;
+        opacity: 0;
     }
     
-    /* 40% : Arrivée sur la bactérie (centre de l'écran approximatif) */
+    /* 10% : Apparition en mouvement */
+    10% {
+        opacity: 1;
+    }
+
+    /* 40% : Arrivée sur la bactérie (CENTRE EXACT) */
+    /* Calcul : 50% de l'écran MOINS la moitié de la largeur de l'image (200px) */
     40% {
-        top: calc(50% - 300px); /* Ajustement pour que la pointe touche le centre */
-        right: calc(50% - 200px);
+        top: calc(50% - 300px); 
+        right: calc(50% - 280px);
         opacity: 1;
     }
 
     /* 60% : Pause (injection) */
     60% {
-        top: calc(50% - 300px);
-        right: calc(50% - 200px);
+        top: calc(50% - 250px);
+        right: calc(50% - 280px);
         opacity: 1;
     }
 
-    /* 100% : Repart en arrière */
-    100% {
-        top: -400px;
-        right: -400px;
-        opacity: 1; /* Reste visible jusqu'à la sortie */
+    75% {
+        top: calc(50% - 300px);
+        right: calc(50% - 280px);
+        opacity: 1;
     }
+
+    /* 100% : Repart en arrière vers le Haut-Droite */
+    100% {
+        top: -450px;
+        right: -450px;
+        opacity: 1; 
+    }
+}
+
+/* =============================================
+   AJUSTEMENT MOBILE POUR L'ANIMATION
+   ============================================= */
+
+@media (max-width: 768px) {
+    .ch1-pipette-animation {
+        width: 250px; /* Plus petit sur mobile */
+    }
+
+    /* On doit redéfinir l'animation car la taille (250px) change le point central (125px) */
+    .ch1-pipette-animation.active {
+        animation: ch1-inject-sequence-mobile 3.5s ease-in-out forwards;
+    }
+}
+
+@keyframes ch1-inject-sequence-mobile {
+    0% { top: -300px; right: -300px; opacity: 0; }
+    10% { opacity: 1; }
+    
+    /* Centre mobile : 50% - 125px (moitié de 250px) */
+    40% {
+        top: calc(50% - 125px);
+        right: calc(50% - 125px);
+        opacity: 1;
+    }
+    60% {
+        top: calc(50% - 125px);
+        right: calc(50% - 125px);
+        opacity: 1;
+    }
+    
+    100% { top: -300px; right: -300px; opacity: 1; }
 }
 
 /* =============================================
@@ -446,7 +493,7 @@
 
 @media (max-width: 768px) {
     .ch1-panel {
-        width: 160px;
+        width: 160px; /* Remis à 160px pour mobile */
         padding: 10px;
     }
     
