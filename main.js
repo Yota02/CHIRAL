@@ -64,9 +64,10 @@ class Game {
         this.endMessage = document.getElementById('end-message');
         this.endText = document.getElementById('end-text');
         this.startButton = document.getElementById('start-button');
-        this.chapterMenuToggle = document.getElementById('chapter-menu-toggle');
-        this.chapterList = document.getElementById('chapter-list');
-        this.chapterSelectBtns = document.querySelectorAll('.chapter-select-btn');
+        // Supprimer les références au menu des chapitres
+        // this.chapterMenuToggle = document.getElementById('chapter-menu-toggle');
+        // this.chapterList = document.getElementById('chapter-list');
+        // this.chapterSelectBtns = document.querySelectorAll('.chapter-select-btn');
 
         // Etat du jeu
         this.state = 'title';  // title, transition, playing, dialogue, ending
@@ -98,7 +99,6 @@ class Game {
     init() {
         this.resizeCanvas();
         this.setupEventListeners();
-        this.titleScreen.classList.remove('active');
         this.gameLoop(0);
     }
 
@@ -114,20 +114,20 @@ class Game {
         // Bouton de demarrage
         this.startButton.addEventListener('click', () => this.startGame());
 
-        // Menu de selection des chapitres
-        this.chapterMenuToggle.addEventListener('click', () => {
-            this.chapterList.classList.toggle('hidden');
-        });
+        // Supprimer les écouteurs pour le menu des chapitres
+        // this.chapterMenuToggle.addEventListener('click', () => {
+        //     this.chapterList.classList.toggle('hidden');
+        // });
 
-        // Boutons de selection de chapitre
-        this.chapterSelectBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const chapterIndex = parseInt(btn.dataset.chapter);
-                this.chapterList.classList.add('hidden');
-                this.titleScreen.classList.remove('active');
-                this.startChapter(chapterIndex);
-            });
-        });
+        // this.chapterSelectBtns.forEach(btn => {
+        //     btn.addEventListener('click', () => {
+        //         const chapterIndex = parseInt(btn.dataset.chapter);
+        //         this.chapterList.classList.add('hidden');
+        //         this.titleScreen.classList.remove('active');
+        //         this.titleScreen.classList.add('hidden');
+        //         this.startChapter(chapterIndex);
+        //     });
+        // });
 
         // Bouton continuer (dialogue)
         this.continueButton.addEventListener('click', () => this.advanceDialogue());
@@ -205,17 +205,25 @@ class Game {
 
     startGame() {
         this.titleScreen.classList.remove('active');
-        this.startChapter(0);
+        this.titleScreen.classList.add('hidden');
+        this.startChapter(0);  // Démarrer toujours depuis le chapitre 0
     }
 
     startChapter(chapterIndex) {
-        // Nettoyer le chapitre precedent si existe
+        // 1. Gestion de l'UI (Masquer Titre / Reset UI Chapitre)
+        this.titleScreen.classList.remove('active');
+        this.titleScreen.classList.add('hidden');
+        this.chapterUI.classList.remove('active'); // On cache l'UI pendant la transition
+        
+        // 2. Nettoyer le chapitre précédent si existe (libérer la mémoire/event listeners)
         if (this.chapter && typeof this.chapter.destroy === 'function') {
             this.chapter.destroy();
         }
+        this.chapter = null; // Sécurité
 
         this.currentChapter = chapterIndex;
 
+        // 3. Vérifier si on a fini tous les chapitres
         if (chapterIndex >= CHAPTERS_DATA.length) {
             this.showFinalEnding();
             return;
@@ -223,20 +231,21 @@ class Game {
 
         const chapterData = CHAPTERS_DATA[chapterIndex];
 
-        // --- MODIFICATION ICI ---
-        // Au lieu d'appeler showTransition, on lance directement le jeu :
-        
-        // 1. On instancie la classe du chapitre
-        this.chapter = new chapterData.class(this);
-        
-        // 2. On change l'état du jeu
-        this.state = 'playing';
-        
-        // 3. On active l'interface utilisateur du chapitre
-        this.chapterUI.classList.add('active');
-        
-        // (Optionnel) Si vous voulez cacher manuellement l'écran de transition au cas où
-        this.transitionScreen.classList.remove('active');
+        // 4. LANCEMENT DE LA TRANSITION
+        // On passe une fonction (callback) qui sera exécutée à la fin de l'animation
+        this.showTransition(chapterData.date, chapterData.title, () => {
+            
+            // --- Ce bloc s'exécute après les 4 secondes de transition ---
+            
+            // A. On instancie la classe du chapitre
+            this.chapter = new chapterData.class(this);
+            
+            // B. On change l'état du jeu pour lancer l'update/draw
+            this.state = 'playing';
+            
+            // C. On réactive l'interface utilisateur du jeu
+            this.chapterUI.classList.add('active');
+        });
     }
 
     showTransition(date, title, callback) {
@@ -244,10 +253,10 @@ class Game {
         this.transitionDate.textContent = date;
         this.transitionTitle.textContent = title;
 
-        // Reset animations
-        this.transitionDate.style.animation = 'none';
-        this.transitionTitle.style.animation = 'none';
-        
+        // Masquer la date et le titre initialement
+        this.transitionDate.style.opacity = '0';
+        this.transitionTitle.style.opacity = '0';
+
         // S'assurer que l'écran de transition est visible
         this.transitionScreen.style.opacity = '0';
         this.transitionScreen.classList.add('active');
@@ -255,10 +264,18 @@ class Game {
         // Force reflow
         void this.transitionDate.offsetWidth;
         
-        // Démarrer les animations
-        this.transitionDate.style.animation = 'fadeIn 2s ease-in-out forwards';
-        this.transitionTitle.style.animation = 'fadeIn 2s ease-in-out 1s forwards';
+        // Démarrer la transition d'opacité de l'écran
         this.transitionScreen.style.opacity = '1';
+
+        // Révéler la date après 1 seconde (après que le fond noir soit apparu)
+        setTimeout(() => {
+            this.transitionDate.style.opacity = '1';
+        }, 1000);
+
+        // Révéler le titre après 2 secondes (après l'année)
+        setTimeout(() => {
+            this.transitionTitle.style.opacity = '1';
+        }, 2000);
 
         setTimeout(() => {
             this.transitionScreen.style.opacity = '0';

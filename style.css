@@ -183,62 +183,61 @@ h1.glitch::before {
 }
 
 /* ===========================================
-   MENU DE SELECTION DES CHAPITRES
+   ECRAN DE TRANSITION
    =========================================== */
 
-/* Styles généraux du menu */
-#chapter-menu {
-    margin-top: 30px;
-    position: relative;
-}
-
-/* Bouton pour afficher/cacher le menu des chapitres */
-#chapter-menu-toggle {
-    background: rgba(68, 255, 136, 0.1);
-    border: 1px solid #44ff88;
-}
-
-/* Liste des chapitres */
-#chapter-list {
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(17, 17, 17, 0.95);
-    border: 2px solid #44ff88;
-    padding: 15px;
+#transition-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-width: 200px;
-    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 50;
+    pointer-events: none;
 }
 
-/* Cache la liste des chapitres si elle a la classe "hidden" */
-#chapter-list.hidden {
-    display: none;
+#transition-screen.active {
+    opacity: 1;
 }
 
-/* Boutons de sélection des chapitres */
-.chapter-select-btn {
-    background: rgba(68, 255, 136, 0.1);
-    border: 1px solid #44ff88;
-    color: #44ff88;
-    padding: 10px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    transition: all 0.3s ease;
+#transition-date {
+    font-size: clamp(2rem, 8vw, 5rem);
+    font-weight: 700;
+    color: var(--text-white);
+    text-shadow: none;
+    margin-bottom: 1rem;
+    animation: none; /* Reset pour JS */
+    transition: opacity 0.5s ease;
 }
 
-/* Effet au survol des boutons de chapitre */
-.chapter-select-btn:hover {
-    background: rgba(68, 255, 136, 0.2);
-    transform: translateX(5px);
+#transition-title {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    font-weight: 500;
+    color: var(--text-white);
+    text-shadow: none;
+    text-align: center;
+    animation: none; /* Reset pour JS */
+    transition: opacity 0.5s ease;
 }
 
-/* ===========================================
-   ANIMATIONS (KEYFRAMES)
-   =========================================== */
+/* Animation de fade-in personnalisée */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* Animation Cyan : découpe le texte horizontalement */
 @keyframes glitch-anim-cyan {
@@ -265,17 +264,6 @@ h1.glitch::before {
     50% { opacity: 0.3; }
 }
 
-/* Ecran de transition */
-#transition-screen {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-#transition-screen.active {
-    display: flex;
-    opacity: 1;
-}
-
 /* Assurer que l'UI du chapitre 1 est visible */
 #ch1-ui {
     opacity: 0;
@@ -289,5 +277,13 @@ h1.glitch::before {
 /* Classes utilitaires pour cacher des éléments */
 .hidden {
     display: none !important;
+}
+
+/* Utilitaire : désactive les effets "vieux écran" pour certaines pages/UI */
+body.no-old-screen #scanlines,
+body.no-old-screen #vignette {
+    display: none !important;
+    pointer-events: none;
+    opacity: 0 !important;
 }
 

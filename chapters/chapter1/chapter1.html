@@ -108,3 +108,35 @@
 
   </div>
 </template>
+
+<script>
+/* Script minimal : active body.no-old-screen quand #ch1-ui est visible, le retire sinon */
+(function () {
+  function update() {
+    const ch = document.getElementById('ch1-ui');
+    if (ch && !ch.classList.contains('hidden')) {
+      document.body.classList.add('no-old-screen');
+    } else {
+      document.body.classList.remove('no-old-screen');
+    }
+  }
+
+  // Observe ajout/suppression d'éléments dans le DOM et changements de classes
+  const bodyObserver = new MutationObserver(() => {
+    update();
+    const ch = document.getElementById('ch1-ui');
+    if (ch && !ch._classObserver) {
+      ch._classObserver = new MutationObserver(update);
+      ch._classObserver.observe(ch, { attributes: true, attributeFilter: ['class'] });
+    }
+  });
+  bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+  // vérification initiale au chargement
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', update);
+  } else {
+    update();
+  }
+})();
+</script>

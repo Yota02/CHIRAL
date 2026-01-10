@@ -197,7 +197,7 @@ export class Chapter1 {
         this.showUI();
 
         // 6. Initialiser le jeu
-        this.game.setInstructions('PRODUISEZ 20 000 MOLECULES POUR COMPLETER LA SYNTHESE');
+        this.game.setInstructions('');
 
         // 7. Demarrer le tutoriel
         this.startTutorial();
