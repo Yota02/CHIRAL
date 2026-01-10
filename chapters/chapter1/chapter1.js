@@ -1,6 +1,5 @@
 /**
  * CHAPITRE 1 : LA SYNTHESE
- * * Gestion complète du chapitre : Canvas, UI, Upgrades, Animations
  */
 
 export class Chapter1 {
@@ -22,10 +21,10 @@ export class Chapter1 {
         this.moleculeTimer = 0;
         this.moleculeRate = 1.0;
         this.medicationDuration = 10.0;
-        this.moleculeThreshold = 10; // Nouveau seuil dynamique pour les médicaments
+        this.moleculeThreshold = 10;
 
         // Seuils & Objectifs
-        this.EVENT_THRESHOLD = 15000; // Fin du chapitre
+        this.EVENT_THRESHOLD = 15000;
 
         // Entites
         this.particles = [];
@@ -36,94 +35,50 @@ export class Chapter1 {
             {
                 name: "Production +1",
                 description: "Produit 1 molecule/s de plus",
-                cost: 10,
-                costMultiplier: 1.5,
-                level: 0,
-                maxLevel: 30,
-                type: "production",
-                effect: 1,
-                hidden: false
+                cost: 10, costMultiplier: 1.5, level: 0, maxLevel: 30,
+                type: "production", effect: 1, hidden: false
             },
             {
                 name: "Duree +2s",
                 description: "Les medicaments durent 2s de plus",
-                cost: 15,
-                costMultiplier: 1.6,
-                level: 0,
-                maxLevel: 30,
-                type: "duration",
-                effect: 2,
-                hidden: false
+                cost: 15, costMultiplier: 1.6, level: 0, maxLevel: 30,
+                type: "duration", effect: 2, hidden: false
             },
             {
                 name: "Production x2",
                 description: "Double la production de molecules",
-                cost: 50,
-                costMultiplier: 2.0,
-                level: 0,
-                maxLevel: 15,
-                type: "production_multiplier",
-                effect: 2,
-                hidden: false
+                cost: 50, costMultiplier: 2.0, level: 0, maxLevel: 15,
+                type: "production_multiplier", effect: 2, hidden: false
             },
             {
                 name: "Duree x1.5",
                 description: "Augmente la duree de 50%",
-                cost: 75,
-                costMultiplier: 2.5,
-                level: 0,
-                maxLevel: 15,
-                type: "duration_multiplier",
-                effect: 1.5,
-                hidden: false
+                cost: 75, costMultiplier: 2.5, level: 0, maxLevel: 15,
+                type: "duration_multiplier", effect: 1.5, hidden: false
             },
-            // --- UPGRADE CACHÉE ---
             {
                 name: "Bactérie Miroir",
                 description: "Les médicaments ne se dégradent plus !",
-                cost: 10000,
-                costMultiplier: 1,
-                level: 0,
-                maxLevel: 1,
-                type: "immortality",
-                effect: 1,
-                hidden: true // Caché au départ
+                cost: 10000, costMultiplier: 1, level: 0, maxLevel: 1,
+                type: "immortality", effect: 1, hidden: true
             },
-            // Nouveau upgrade ajouté
             {
                 name: "Réduction Molécules",
                 description: "Réduit de 1 le nombre de molécules nécessaires par médicament",
-                cost: 20,
-                costMultiplier: 2.0,
-                level: 0,
-                maxLevel: 9,
-                type: "molecule_threshold_reduction",
-                effect: 1,
-                hidden: false
+                cost: 20, costMultiplier: 2.0, level: 0, maxLevel: 9,
+                type: "molecule_threshold_reduction", effect: 1, hidden: false
             }
         ];
-
-        // Animation
-        this.bacteriumPulse = 0;
-        this.flashIntensity = 0;
-        this.liquidWavePhase = 0;
 
         // Images
         this.labBackgroundImage = new Image();
         this.labBackgroundImage.src = './img/paillasse.png';
-
         this.petriDishImage = new Image();
         this.petriDishImage.src = './img/boite_de_petri.png';
-
         this.moleculeImage = new Image();
         this.moleculeImage.src = './img/molecule.png';
-
-        this.bacterieImages = [
-            new Image(),
-            new Image(),
-            new Image(),
-            new Image()
-        ];
+        
+        this.bacterieImages = [new Image(), new Image(), new Image(), new Image()];
         this.bacterieImages[0].src = './img/bacterie_nv1.png';
         this.bacterieImages[1].src = './img/bacterie_nv2.png';
         this.bacterieImages[2].src = './img/bacterie_nv3.png';
@@ -131,136 +86,103 @@ export class Chapter1 {
 
         // --- REFERENCES DOM ---
         this.domElements = {
-            container: null,
-            money: null,
-            totalMolecules: null,
-            medProgress: null,
-            medCount: null,
-            pillsContainer: null,
-            upgrades: [],
-            pipetteAnimation: null
+            container: null, money: null, totalMolecules: null, medProgress: null,
+            medCount: null, pillsContainer: null, upgrades: [],
+            pipetteAnimation: null, beakerFill: null, beaker: null,
+            beakerMolecules: null, flyingMeds: null
         };
         this.pillElements = [];
+        this.beakerMoleculeElements = [];
 
-        // Tracking pour optimisation des updates DOM
+        // Tracking
         this._lastMoney = -1;
         this._lastTotalProduced = -1;
         this._lastMoleculesForMed = -1;
         this._lastMedCount = -1;
-        this._lastMoleculeThreshold = -1; // Nouveau tracking pour le seuil
+        this._lastMoleculeThreshold = -1;
 
-        // Systeme de tutoriel
+        // --- SYSTEME DE TUTORIEL CONFIGURATION ---
         this.tutorialActive = false;
         this.tutorialStep = 0;
         this.tutorialSteps = [
             {
-                title: "Chapitre 1 : La Synthese",
-                content: "Bienvenue dans le laboratoire. Vous allez creer la premiere <em>bacterie miroir</em>, un organisme a <strong>chiralite inversee</strong>.",
-                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
-                arrow: null,
-                highlight: null
+                title: "Chapitre 1 : La Synthèse",
+                content: "Bienvenue dans le laboratoire. Vous allez créer la première <em>bactérie miroir</em>, un organisme à <strong>chiralité inversée</strong>.",
+                target: null, // Pas de cible, centré
+                placement: 'center'
             },
             {
-                title: "La Bacterie",
-                content: "Cliquez sur la <strong>bacterie</strong> au centre pour produire des molecules manuellement.",
-                position: { top: '30%', left: '50%', transform: 'translate(-50%, 0)' },
-                arrow: 'down',
-                highlight: { top: '50%', left: '50%', width: '200px', height: '200px', transform: 'translate(-50%, -50%)', borderRadius: '50%' }
+                title: "La Bactérie",
+                content: "Cliquez sur la <strong>bactérie</strong> au centre pour produire des molécules manuellement.",
+                target: 'canvas-center', // Cible spéciale calculée dynamiquement
+                placement: 'bottom'
             },
             {
-                title: "Les Medicaments",
-                content: "Toutes les <strong>10 molecules</strong>, un medicament est créé. Il genere de l'<strong>argent</strong> tant qu'il est actif.",
-                position: { top: '150px', left: '260px' },
-                arrow: 'left',
-                highlight: { top: '10px', left: '10px', width: '240px', height: '200px', borderRadius: '10px', transform: 'none' }
+                title: "Les Médicaments",
+                content: "Toutes les <strong>10 molécules</strong>, un médicament est créé ici. Il génère de l'<strong>argent</strong> tant qu'il est actif.",
+                target: '#ch1-medications-panel', // Cible l'ID HTML réel
+                placement: 'right'
             },
             {
-                title: "Ameliorations",
-                content: "Investissez votre argent pour automatiser la production et augmenter la duree de vie des medicaments.",
-                position: { top: '400px', left: '260px' },
-                arrow: 'left',
-                highlight: { top: '220px', left: '10px', width: '240px', height: '400px', borderRadius: '10px', transform: 'none' }
+                title: "Améliorations",
+                content: "Investissez votre argent ici pour automatiser la production et augmenter la durée de vie des médicaments.",
+                target: '#ch1-upgrades-panel',
+                placement: 'right'
             },
             {
                 title: "Objectif",
-                content: "Produisez <strong>20 000 molecules</strong> pour déclencher la révolution chirale.",
-                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
-                arrow: null,
-                highlight: null
+                content: "Produisez <strong>20 000 molécules</strong> pour déclencher la révolution chirale.",
+                target: '#ch1-total-molecules', // Cible le texte du score
+                placement: 'bottom'
             }
         ];
+
+        this.bacteriaXOffset = 0;
+        this.bacteriaYOffset = 0;
 
         this.init();
     }
 
     async init() {
         try {
-            // CORRECTION: Nettoyer l'ancienne UI pour forcer le rechargement correct du HTML
             const oldUI = document.getElementById('ch1-ui');
             if (oldUI) oldUI.remove();
 
-            // 1. Charger et injecter HTML/CSS
             await this.loadChapterUI();
-
-            // Petit délai pour s'assurer que le DOM est prêt
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // 2. Mettre en cache les references DOM
             this.cacheDOMReferences();
-
-            // 3. Configurer les handlers de clics pour les upgrades
             this.setupUpgradeHandlers();
-
-            // 4. Configurer les handlers du tutoriel
             this.setupTutorialHandlers();
-
-            // 5. Afficher l'UI
             this.showUI();
-
-            // 6. Initialiser le jeu
+            
             this.game.setInstructions('');
-
-            // 7. Demarrer le tutoriel
             this.startTutorial();
         } catch (error) {
-            console.error('Erreur lors de l\'initialisation du chapitre 1:', error);
-            this.game.showDialogue(['Erreur de chargement. Veuillez recharger la page.'], () => {});
+            console.error('Erreur init chap 1:', error);
         }
     }
 
-    // --- CHARGEMENT HTML/CSS ---
-
+    // --- CHARGEMENT ---
     async loadChapterUI() {
-        // Charger le CSS
         if (!document.getElementById('chapter1-css')) {
             const link = document.createElement('link');
             link.id = 'chapter1-css';
             link.rel = 'stylesheet';
             link.href = './chapters/chapter1/chapter1.css';
             document.head.appendChild(link);
-
-            await new Promise(resolve => {
-                link.onload = resolve;
-                link.onerror = resolve;
-            });
+            await new Promise(resolve => { link.onload = resolve; link.onerror = resolve; });
         }
 
-        // Charger et injecter le template HTML
         if (!document.getElementById('ch1-ui')) {
-            try {
-                const response = await fetch('./chapters/chapter1/chapter1.html');
-                const html = await response.text();
-
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const template = doc.getElementById('chapter1-template');
-
-                if (template) {
-                    const content = template.content.cloneNode(true);
-                    document.getElementById('ui-overlay').appendChild(content);
-                }
-            } catch (error) {
-                console.error('Erreur chargement UI chapitre 1:', error);
+            const response = await fetch('./chapters/chapter1/chapter1.html');
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const template = doc.getElementById('chapter1-template');
+            if (template) {
+                const content = template.content.cloneNode(true);
+                document.getElementById('ui-overlay').appendChild(content);
             }
         }
     }
@@ -274,9 +196,13 @@ export class Chapter1 {
         this.domElements.medCount = document.querySelector('#ch1-med-count span');
         this.domElements.pillsContainer = document.getElementById('ch1-pills-container');
         this.domElements.pipetteAnimation = document.getElementById('ch1-pipette-animation');
+        this.domElements.medThreshold = document.querySelector('#ch1-med-threshold');
+        this.domElements.beakerFill = document.getElementById('ch1-beaker-fill');
+        this.domElements.beaker = document.querySelector('.ch1-beaker');
+        this.domElements.beakerMolecules = document.getElementById('ch1-beaker-molecules');
+        this.domElements.flyingMeds = document.getElementById('ch1-flying-meds');
 
-        // IMPORTANT: On cherche maintenant 6 upgrades (indices 0 à 5)
-        this.domElements.upgrades = []; // Reset array
+        this.domElements.upgrades = [];
         for (let i = 0; i < 6; i++) {
             const el = document.getElementById(`ch1-upgrade-${i}`);
             if (el) {
@@ -287,16 +213,11 @@ export class Chapter1 {
                     level: el.querySelector('.ch1-upgrade-level')
                 });
             } else {
-                console.warn(`Upgrade element ch1-upgrade-${i} not found`);
-                // Placeholder pour éviter crash index
                 this.domElements.upgrades.push(null);
             }
         }
 
-        // Mettre en cache les elements du tutoriel
         this.cacheTutorialReferences();
-        // Nouveau : référence pour le seuil dynamique
-        this.domElements.medThreshold = document.querySelector('#ch1-med-threshold');
     }
 
     cacheTutorialReferences() {
@@ -316,24 +237,17 @@ export class Chapter1 {
     setupUpgradeHandlers() {
         this.domElements.upgrades.forEach((upg, index) => {
             if (upg && upg.element) {
-                upg.element.addEventListener('click', () => {
-                    this.buyUpgrade(index);
-                });
+                upg.element.addEventListener('click', () => this.buyUpgrade(index));
             }
         });
     }
 
     setupTutorialHandlers() {
         if (this.tutorialElements.nextBtn) {
-            this.tutorialElements.nextBtn.addEventListener('click', () => {
-                this.nextTutorialStep();
-            });
+            this.tutorialElements.nextBtn.addEventListener('click', () => this.nextTutorialStep());
         }
-
         if (this.tutorialElements.skipBtn) {
-            this.tutorialElements.skipBtn.addEventListener('click', () => {
-                this.skipTutorial();
-            });
+            this.tutorialElements.skipBtn.addEventListener('click', () => this.skipTutorial());
         }
     }
 
@@ -341,9 +255,7 @@ export class Chapter1 {
         if (this.domElements.container) {
             this.domElements.container.style.display = 'block';
             this.domElements.container.classList.remove('hidden');
-            setTimeout(() => {
-                this.domElements.container.style.opacity = '1';
-            }, 50);
+            setTimeout(() => { this.domElements.container.style.opacity = '1'; }, 50);
         }
     }
 
@@ -362,105 +274,136 @@ export class Chapter1 {
     }
 
     // --- MISE A JOUR DOM ---
-
     updateDOM() {
         // Argent
         if (this._lastMoney !== Math.floor(this.money)) {
             this._lastMoney = Math.floor(this.money);
-            if (this.domElements.money) {
-                this.domElements.money.textContent = `$ ${this._lastMoney}`;
-            }
+            if (this.domElements.money) this.domElements.money.textContent = `$ ${this._lastMoney}`;
         }
-
         // Total molecules
         if (this._lastTotalProduced !== Math.floor(this.totalProduced)) {
             this._lastTotalProduced = Math.floor(this.totalProduced);
-            if (this.domElements.totalMolecules) {
-                this.domElements.totalMolecules.textContent = this._lastTotalProduced;
-            }
+            if (this.domElements.totalMolecules) this.domElements.totalMolecules.textContent = this._lastTotalProduced;
         }
-
-        // Couleur selon mode miroir
-        if (this.domElements.statLine) {
-            this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
-        }
-
-        // Progression medicament
+        // Mirror mode
+        if (this.domElements.statLine) this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
+        
+        // Progress
         if (this._lastMoleculesForMed !== this.moleculesForMed) {
             this._lastMoleculesForMed = this.moleculesForMed;
-            if (this.domElements.medProgress) {
-                this.domElements.medProgress.textContent = this.moleculesForMed;
-            }
+            if (this.domElements.medProgress) this.domElements.medProgress.textContent = this.moleculesForMed;
         }
-
-        // Nouveau : Mise à jour du seuil dynamique
+        // Threshold
         if (this._lastMoleculeThreshold !== this.moleculeThreshold) {
             this._lastMoleculeThreshold = this.moleculeThreshold;
-            if (this.domElements.medThreshold) {
-                this.domElements.medThreshold.textContent = this.moleculeThreshold;
-            }
+            if (this.domElements.medThreshold) this.domElements.medThreshold.textContent = this.moleculeThreshold;
         }
-
-        // Nombre de medicaments
+        // Count
         if (this._lastMedCount !== this.medications.length) {
             this._lastMedCount = this.medications.length;
-            if (this.domElements.medCount) {
-                this.domElements.medCount.textContent = this.medications.length;
-            }
+            if (this.domElements.medCount) this.domElements.medCount.textContent = this.medications.length;
         }
 
-        // Pilules
         this.updatePillsDisplay();
-
-        // Upgrades
+        this.updateBeakerDisplay();
         this.updateUpgradesDisplay();
     }
 
     updatePillsDisplay() {
         const container = this.domElements.pillsContainer;
         if (!container) return;
-
-        const targetCount = Math.min(this.medications.length, 18); // Max 3 lignes
+        const targetCount = Math.min(this.medications.length, 18);
 
         while (this.pillElements.length < targetCount) {
-            const pill = this.createPillElement();
+            const pill = document.createElement('div');
+            pill.className = 'ch1-pill';
+            pill.innerHTML = `<div class="ch1-pill-left"></div><div class="ch1-pill-right"></div>`;
             container.appendChild(pill);
             this.pillElements.push(pill);
         }
-
         while (this.pillElements.length > targetCount) {
-            const pill = this.pillElements.pop();
-            pill.remove();
+            this.pillElements.pop().remove();
         }
 
         const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
-        
         this.pillElements.forEach((pill, index) => {
             if (this.medications[index]) {
-                if (this.mirrorMode || hasImmortality) {
-                    pill.style.opacity = 1.0;
-                } else {
-                    const opacity = this.medications[index].life / this.medicationDuration;
-                    pill.style.opacity = Math.max(0.2, opacity);
-                }
+                if (this.mirrorMode || hasImmortality) pill.style.opacity = 1.0;
+                else pill.style.opacity = Math.max(0.2, this.medications[index].life / this.medicationDuration);
             }
         });
     }
 
-    createPillElement() {
-        const pill = document.createElement('div');
-        pill.className = 'ch1-pill';
-        pill.innerHTML = `
-            <div class="ch1-pill-left"></div>
-            <div class="ch1-pill-right"></div>
-        `;
-        return pill;
+    updateBeakerDisplay() {
+        if (!this.domElements.beakerFill) return;
+        const fillPercent = (this.moleculesForMed / this.moleculeThreshold) * 100;
+        this.domElements.beakerFill.style.height = `${Math.min(fillPercent, 100)}%`;
+        this.updateBeakerMolecules(fillPercent);
+    }
+
+    updateBeakerMolecules(fillPercent) {
+        if (!this.domElements.beakerMolecules) return;
+        const targetMolecules = Math.floor(fillPercent / 20);
+        while (this.beakerMoleculeElements.length < targetMolecules) {
+            const molecule = document.createElement('div');
+            molecule.className = 'ch1-beaker-molecule';
+            molecule.style.left = `${10 + Math.random() * 60}%`;
+            molecule.style.bottom = `${5 + Math.random() * (fillPercent * 0.6)}%`;
+            molecule.style.animationDelay = `${Math.random() * 2}s`;
+            this.domElements.beakerMolecules.appendChild(molecule);
+            this.beakerMoleculeElements.push(molecule);
+        }
+        while (this.beakerMoleculeElements.length > targetMolecules) {
+            this.beakerMoleculeElements.pop().remove();
+        }
+    }
+
+    triggerBeakerEmptyAnimation() {
+        if (!this.domElements.beaker) return;
+        this.domElements.beaker.classList.add('creating');
+        this.beakerMoleculeElements.forEach(mol => mol.remove());
+        this.beakerMoleculeElements = [];
+        setTimeout(() => { this.domElements.beaker.classList.remove('creating'); }, 400);
+    }
+
+    spawnFlyingMedication() {
+        if (!this.domElements.flyingMeds || !this.domElements.pillsContainer || !this.domElements.beaker) return;
+        
+        const beakerRect = this.domElements.beaker.getBoundingClientRect();
+        const pillsRect = this.domElements.pillsContainer.getBoundingClientRect();
+        
+        const startX = beakerRect.left + beakerRect.width / 2;
+        const startY = beakerRect.top + beakerRect.height / 2;
+        const endX = pillsRect.left + pillsRect.width / 2;
+        const endY = pillsRect.top + pillsRect.height / 2;
+
+        const flyingMed = document.createElement('div');
+        flyingMed.className = 'ch1-flying-med';
+        flyingMed.innerHTML = `<span class="ch1-flying-med-plus">+</span><div class="ch1-flying-med-pill"><div class="ch1-flying-med-pill-left"></div><div class="ch1-flying-med-pill-right"></div></div>`;
+        flyingMed.style.left = `${startX}px`;
+        flyingMed.style.top = `${startY}px`;
+        this.domElements.flyingMeds.appendChild(flyingMed);
+
+        const duration = 800;
+        const startTime = performance.now();
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            const currentX = startX + (endX - startX) * easeProgress;
+            const currentY = startY + (endY - startY) * easeProgress - Math.sin(progress * Math.PI) * 50;
+            flyingMed.style.left = `${currentX}px`;
+            flyingMed.style.top = `${currentY}px`;
+
+            if (progress < 1) requestAnimationFrame(animate);
+            else setTimeout(() => flyingMed.remove(), 100);
+        };
+        requestAnimationFrame(animate);
     }
 
     updateUpgradesDisplay() {
         this.upgrades.forEach((upgrade, index) => {
             const dom = this.domElements.upgrades[index];
-            // CORRECTION: Vérification de sécurité pour éviter le crash si l'élément n'existe pas
             if (!dom || !dom.element) return;
 
             if (upgrade.hidden) {
@@ -475,29 +418,21 @@ export class Chapter1 {
 
             dom.element.classList.toggle('ch1-can-buy', canBuy && !isMaxed);
             dom.element.classList.toggle('ch1-maxed', isMaxed);
-
-            if (dom.level) {
-                dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
-            }
-
-            if (dom.cost) {
-                dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
-            }
+            if (dom.level) dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
+            if (dom.cost) dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
         });
     }
 
-    // --- LOGIQUE DE JEU ---
-
+    // --- UPDATE LOOP ---
     update(deltaTime) {
         const { width, height } = this.game.getCanvasSize();
 
-        // 1. Apparition de l'upgrade cachée (1000 molecules pour tester, 10000 reel)
+        // Reveal hidden upgrade
         if (this.totalProduced >= 10000 && this.upgrades[4].hidden) {
             this.upgrades[4].hidden = false;
-            // Supprimé : this.game.showDialogue([...], () => {});
         }
 
-        // Generation automatique de molecules
+        // Auto generation
         this.moleculeTimer += deltaTime;
         if (this.moleculeTimer >= 1.0 / this.moleculeRate) {
             this.moleculeTimer = 0;
@@ -505,66 +440,47 @@ export class Chapter1 {
             this.totalProduced += 1;
             this.moleculesForMed += 1;
 
-            // Position aleatoire dans la boite de Petri (centrée)
             const centerX = width / 2 + 50;
             const centerY = height / 2 + 70;
             const angle = Math.random() * Math.PI * 2;
             const radius = Math.random() * 140;
-            const randomX = centerX + Math.cos(angle) * radius;
-            const randomY = centerY + Math.sin(angle) * radius;
-
-            this.spawnParticle(
-                randomX,
-                randomY,
-                "",
-                this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL,
-                false,
-                this.moleculeImage
-            );
-
+            this.spawnParticle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, "", this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
+            
             this.checkMedicationCreation();
-
             if (!this.mirrorMode && this.totalProduced >= this.EVENT_THRESHOLD) {
                 this.triggerMirrorRevolution();
             }
         }
 
-        // Input
+        // Click Input
         const mouse = this.game.getMouse();
         if (mouse.clicked) {
-            // Clic sur la bacterie (centrée)
             const centerX = width / 2 + 50;
             const centerY = height / 2 + 70;
             if (this.dist(mouse.x, mouse.y, centerX, centerY) < 100) {
                 this.molecules += 1;
                 this.totalProduced += 1;
                 this.moleculesForMed += 1;
-
                 this.spawnParticle(mouse.x, mouse.y - 30, "+1", this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL);
                 this.spawnMoleculeBurst(mouse.x, mouse.y, 3);
-
                 this.checkMedicationCreation();
             }
         }
 
-        // Animations
-        this.bacteriumPulse += deltaTime * 5;
-        if (this.flashIntensity > 0) this.flashIntensity -= deltaTime * 0.5;
-        this.liquidWavePhase += deltaTime * 3;
+        // Animation de la bactérie : flottement subtil
+        const time = this.game.getTime ? this.game.getTime() : performance.now() / 1000;
+        this.bacteriaXOffset = Math.sin(time * 1.5) * 6; // Oscillation horizontale légère (augmentée)
+        this.bacteriaYOffset = Math.cos(time * 1.2) * 4; // Oscillation verticale légère (augmentée)
+
+        // Logic
         this.updateParticles(deltaTime);
-
         const hasImmortality = this.upgrades[4].level > 0;
-
-        // Medicaments
         for (let i = this.medications.length - 1; i >= 0; i--) {
             let med = this.medications[i];
             this.money += deltaTime;
-            
             if (!this.mirrorMode && !hasImmortality) {
                 med.life -= deltaTime;
-                if (med.life <= 0) {
-                    this.medications.splice(i, 1);
-                }
+                if (med.life <= 0) this.medications.splice(i, 1);
             }
         }
 
@@ -576,70 +492,43 @@ export class Chapter1 {
             this.moleculesForMed -= this.moleculeThreshold;
             this.molecules -= this.moleculeThreshold;
             this.spawnMedication();
-
             const { width, height } = this.game.getCanvasSize();
-            const particleX = 80 + (Math.random() * 40 - 20);
-            const particleY = height - 200;
-
-            this.spawnParticle(particleX, particleY, `-${this.moleculeThreshold}`, "#ff4444");
+            this.spawnParticle(80, height - 200, `-${this.moleculeThreshold}`, "#ff4444");
+            this.triggerBeakerEmptyAnimation();
+            this.spawnFlyingMedication();
         }
     }
 
     spawnMedication() {
-        this.medications.push({
-            x: Math.random() * 100 + 50,
-            y: Math.random() * 100 + 50,
-            life: this.medicationDuration
-        });
+        this.medications.push({ x: 0, y: 0, life: this.medicationDuration });
     }
-
-    // --- LOGIQUE UPGRADE MISE A JOUR ---
 
     buyUpgrade(upgradeIndex) {
         const upgrade = this.upgrades[upgradeIndex];
-
-        if (!upgrade) return false;
-        if (upgrade.level >= upgrade.maxLevel) return false;
-        if (this.money < upgrade.cost) return false;
+        if (!upgrade || upgrade.level >= upgrade.maxLevel || this.money < upgrade.cost) return false;
 
         this.money -= upgrade.cost;
         upgrade.level++;
         upgrade.cost = Math.floor(upgrade.cost * upgrade.costMultiplier);
-
         this.totalUpgrades++;
         this.updateBacteriaLevel();
-
         this.recalculateStats();
-
-        // DECLENCHEMENT DE L'ANIMATION PIPETTE
         this.triggerPipetteAnimation();
-
         return true;
     }
 
     updateBacteriaLevel() {
-        if (this.mirrorMode) {
-            this.bacteriaLevel = 4;
-        } else if (this.totalUpgrades >= 20) {
-            this.bacteriaLevel = 3;
-        } else if (this.totalUpgrades >= 10) {
-            this.bacteriaLevel = 2;
-        } else {
-            this.bacteriaLevel = 1;
-        }
+        if (this.mirrorMode) this.bacteriaLevel = 4;
+        else if (this.totalUpgrades >= 20) this.bacteriaLevel = 3;
+        else if (this.totalUpgrades >= 10) this.bacteriaLevel = 2;
+        else this.bacteriaLevel = 1;
     }
 
     triggerPipetteAnimation() {
         const pipette = this.domElements.pipetteAnimation;
-        
         if (pipette) {
-            // 1. Reset
             pipette.classList.remove('active');
-            
-            // 2. Force Reflow (astuce pour redémarrer l'animation CSS immédiatement)
-            void pipette.offsetWidth; 
-            
-            // 3. Start
+            void pipette.offsetWidth;
             pipette.classList.add('active');
         }
     }
@@ -654,77 +543,44 @@ export class Chapter1 {
         this.upgrades.forEach(upgrade => {
             if (upgrade.level > 0) {
                 switch (upgrade.type) {
-                    case "production":
-                        productionBonus += upgrade.effect * upgrade.level;
-                        break;
-                    case "production_multiplier":
-                        productionMultiplier *= Math.pow(upgrade.effect, upgrade.level);
-                        break;
-                    case "duration":
-                        durationBonus += upgrade.effect * upgrade.level;
-                        break;
-                    case "duration_multiplier":
-                        durationMultiplier *= Math.pow(upgrade.effect, upgrade.level);
-                        break;
-                    case "immortality":
-                        break;
-                    case "molecule_threshold_reduction":
-                        thresholdReduction += upgrade.effect * upgrade.level;
-                        break;
+                    case "production": productionBonus += upgrade.effect * upgrade.level; break;
+                    case "production_multiplier": productionMultiplier *= Math.pow(upgrade.effect, upgrade.level); break;
+                    case "duration": durationBonus += upgrade.effect * upgrade.level; break;
+                    case "duration_multiplier": durationMultiplier *= Math.pow(upgrade.effect, upgrade.level); break;
+                    case "molecule_threshold_reduction": thresholdReduction += upgrade.effect * upgrade.level; break;
                 }
             }
         });
 
         this.moleculeRate = (1 + productionBonus) * productionMultiplier;
         this.medicationDuration = (10 + durationBonus) * durationMultiplier;
-        this.moleculeThreshold = Math.max(1, 10 - thresholdReduction); // Seuil minimum de 1
+        this.moleculeThreshold = Math.max(1, 10 - thresholdReduction);
     }
 
     triggerMirrorRevolution() {
         this.mirrorMode = true;
-        this.flashIntensity = 1;
         this.molecules += 100;
         this.updateBacteriaLevel();
         this.game.showDialogue([
-            "OBJECTIF ATTEINT !",
-            "Vous avez produit 20 000 molecules.",
-            "La premiere bacterie miroir est prete.",
-            "La revolution chirale commence..."
+            "OBJECTIF ATTEINT !", "Vous avez produit 20 000 molécules.",
+            "La première bactérie miroir est prête.", "La révolution chirale commence..."
         ], () => {
-            this.game.chapterComplete("Chapitre 1 termine : 20 000 molecules produites - La bacterie miroir est creee !");
+            this.game.chapterComplete("Chapitre 1 terminé");
         });
     }
 
-    // --- SYSTEME DE PARTICULES ---
-
+    // --- PARTICLES ---
     spawnParticle(x, y, text, color, flyToBeaker = false, image = null) {
-        const vx = (Math.random() - 0.5) * 60;
-        const vy = -50 - (Math.random() * 50);
-
         this.particles.push({
-            x, y, text, color,
-            life: 1.0,
-            vx: vx,
-            vy: vy,
-            flyToBeaker: flyToBeaker,
-            image: image,
-            scale: 0.5 + Math.random() * 0.5
+            x, y, text, color, life: 1.0, vx: (Math.random() - 0.5) * 60, vy: -50 - Math.random() * 50,
+            flyToBeaker, image, scale: 0.5 + Math.random() * 0.5
         });
     }
 
     spawnMoleculeBurst(x, y, count) {
         for (let i = 0; i < count; i++) {
-            const offsetX = (Math.random() - 0.5) * 20;
-            const offsetY = (Math.random() - 0.5) * 20;
-
-            this.spawnParticle(
-                x + offsetX,
-                y + offsetY,
-                "",
-                this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL,
-                false,
-                this.moleculeImage
-            );
+            this.spawnParticle(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, "", 
+            this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
         }
     }
 
@@ -732,71 +588,35 @@ export class Chapter1 {
         for (let i = this.particles.length - 1; i >= 0; i--) {
             let p = this.particles[i];
             p.life -= dt;
-
             p.x += p.vx * dt;
             p.y += p.vy * dt;
-
             if (p.life <= 0) this.particles.splice(i, 1);
         }
     }
 
-    dist(x1, y1, x2, y2) {
-        return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-    }
+    dist(x1, y1, x2, y2) { return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2); }
 
-    // --- RENDU CANVAS ---
-
+    // --- DRAW ---
     draw(ctx) {
         const { width, height } = this.game.getCanvasSize();
+        if (this.labBackgroundImage.complete) ctx.drawImage(this.labBackgroundImage, 0, 0, width, height);
+        else { ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, width, height); }
 
-        // 1. Fond
-        if (this.labBackgroundImage.complete && this.labBackgroundImage.naturalWidth > 0) {
-            ctx.drawImage(this.labBackgroundImage, 0, 0, width, height);
-        } else {
-            ctx.fillStyle = '#111111';
-            ctx.fillRect(0, 0, width, height);
-        }
-
-        // 2. Bacterie
         this.drawBacteria(ctx, width, height);
-
-        // 3. Particules
         this.drawParticles(ctx);
-
-        // 4. Flash
-        if (this.flashIntensity > 0) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.flashIntensity})`;
-            ctx.fillRect(0, 0, width, height);
-        }
     }
 
     drawBacteria(ctx, w, h) {
         ctx.save();
-        // Centre de la bactérie (ajusté pour le layout)
-        ctx.translate(w / 2 + 50, h / 2 + 70);
-
-        if (this.petriDishImage.complete && this.petriDishImage.naturalWidth > 0) {
-            ctx.drawImage(this.petriDishImage, -200, -200, 400, 400);
-        } else {
-            ctx.fillStyle = this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL;
-            ctx.beginPath();
-            ctx.arc(0, 0, 40, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
-
+        ctx.translate(w / 2 + 50, h / 2 + 70);  // Position fixe pour la boîte de Petri
+        if (this.petriDishImage.complete) ctx.drawImage(this.petriDishImage, -250, -250, 500, 500);
+        
         const image = this.bacterieImages[this.bacteriaLevel - 1];
-        if (image && image.complete && image.naturalWidth > 0) {
-            const bw = image.naturalWidth;
-            const bh = image.naturalHeight;
-            const scale = 0.5;
-            // Petite pulsation
-            const pulse = 1 + Math.sin(this.bacteriumPulse) * 0.05;
-            
-            ctx.scale(pulse, pulse);
-            ctx.drawImage(image, -(bw * scale) / 2, -(bh * scale) / 2, bw * scale, bh * scale);
+        if (image && image.complete) {
+            ctx.translate(this.bacteriaXOffset, this.bacteriaYOffset);  // Offset uniquement pour la bactérie
+            const scale = 0.6;
+            ctx.scale(scale, scale);
+            ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
         }
         ctx.restore();
     }
@@ -806,9 +626,8 @@ export class Chapter1 {
         ctx.font = 'bold 20px Arial';
         for (let p of this.particles) {
             ctx.globalAlpha = p.life;
-            if (p.image && p.image.complete && p.image.naturalWidth > 0) {
-                const s = p.scale || 1.0;
-                const size = 64 * s;
+            if (p.image && p.image.complete) {
+                const size = 64 * (p.scale || 1.0);
                 ctx.drawImage(p.image, p.x - size / 2, p.y - size / 2, size, size);
             } else {
                 ctx.fillStyle = p.color;
@@ -818,18 +637,11 @@ export class Chapter1 {
         ctx.globalAlpha = 1.0;
     }
 
-    lightenColor(color, percent) {
-        if (color === this.colors.LIFE_NORMAL) return '#88ffaa';
-        if (color === this.colors.LIFE_MIRROR) return '#dd88ff';
-        return '#ffffff';
-    }
-
-    // --- SYSTEME DE TUTORIEL ---
+    // --- SYSTEME DE TUTORIEL DYNAMIQUE (LA CORRECTION) ---
 
     startTutorial() {
         this.tutorialActive = true;
         this.tutorialStep = 0;
-
         if (this.tutorialElements.progress) {
             this.tutorialElements.progress.innerHTML = '';
             for (let i = 0; i < this.tutorialSteps.length; i++) {
@@ -839,7 +651,6 @@ export class Chapter1 {
                 this.tutorialElements.progress.appendChild(dot);
             }
         }
-
         this.showTutorialStep(0);
     }
 
@@ -850,36 +661,83 @@ export class Chapter1 {
         }
 
         const step = this.tutorialSteps[stepIndex];
-
+        
+        // 1. Textes
         if (this.tutorialElements.title) this.tutorialElements.title.textContent = step.title;
         if (this.tutorialElements.content) this.tutorialElements.content.innerHTML = step.content;
-
-        if (this.tutorialElements.bubble) Object.assign(this.tutorialElements.bubble.style, step.position);
-
-        if (this.tutorialElements.arrow) {
-            this.tutorialElements.arrow.className = 'ch1-tutorial-arrow';
-            if (step.arrow) this.tutorialElements.arrow.classList.add(step.arrow);
-        }
-
-        if (this.tutorialElements.highlight) {
-            if (step.highlight) {
-                this.tutorialElements.highlight.style.display = 'block';
-                Object.assign(this.tutorialElements.highlight.style, step.highlight);
-            } else {
-                this.tutorialElements.highlight.style.display = 'none';
-            }
-        }
-
         if (this.tutorialElements.nextBtn) {
             this.tutorialElements.nextBtn.textContent = stepIndex === this.tutorialSteps.length - 1 ? 'COMMENCER' : 'SUIVANT';
         }
 
+        // 2. Positionnement Dynamique (getBoundingClientRect)
+        const highlight = this.tutorialElements.highlight;
+        const bubble = this.tutorialElements.bubble;
+        const arrow = this.tutorialElements.arrow;
+        let targetRect = null;
+
+        if (step.target === 'canvas-center') {
+            const { width, height } = this.game.getCanvasSize();
+            const centerX = width / 2 + 50 + this.bacteriaXOffset;
+            const centerY = height / 2 + 70 + this.bacteriaYOffset;
+            const image = this.bacterieImages[this.bacteriaLevel - 1];
+            let size = 140; // Valeur par défaut si image non chargée
+            if (image && image.complete) {
+                const scale = 0.6;
+                size = image.naturalWidth * scale;
+            }
+            targetRect = { top: centerY - size/2, left: centerX - size/2, width: size, height: size };
+            highlight.style.borderRadius = '50%';
+        } else if (step.target) {
+            const el = document.querySelector(step.target);
+            if (el) {
+                targetRect = el.getBoundingClientRect();
+                highlight.style.borderRadius = '12px';
+            }
+        }
+
+        if (targetRect) {
+            highlight.style.display = 'block';
+            const padding = 10;
+            highlight.style.top = `${targetRect.top - padding}px`;
+            highlight.style.left = `${targetRect.left - padding}px`;
+            highlight.style.width = `${targetRect.width + (padding * 2)}px`;
+            highlight.style.height = `${targetRect.height + (padding * 2)}px`;
+        } else {
+            highlight.style.display = 'none';
+        }
+
+        // 3. Bulle
+        bubble.className = 'ch1-tutorial-bubble'; 
+        arrow.style = '';
+        bubble.style.transform = 'none';
+
+        if (!targetRect || step.placement === 'center') {
+            bubble.style.top = '50%';
+            bubble.style.left = '50%';
+            bubble.style.transform = 'translate(-50%, -50%)';
+            arrow.style.display = 'none';
+        } else {
+            const gap = 25;
+            if (step.placement === 'right') {
+                let topPos = targetRect.top;
+                if (topPos + 200 > window.innerHeight) topPos = window.innerHeight - 220;
+                bubble.style.left = `${targetRect.left + targetRect.width + gap}px`;
+                bubble.style.top = `${topPos}px`;
+                arrow.style.left = '-6px'; arrow.style.top = '20px'; arrow.style.transform = 'rotate(45deg)';
+            } else if (step.placement === 'bottom') {
+                bubble.style.left = `${targetRect.left + (targetRect.width / 2) - 150}px`;
+                bubble.style.top = `${targetRect.top + targetRect.height + gap}px`;
+                arrow.style.top = '-6px'; arrow.style.left = '50%'; arrow.style.transform = 'translate(-50%, 0) rotate(135deg)';
+            }
+            
+            // Sécurité mobile
+            if (parseInt(bubble.style.left) + 300 > window.innerWidth) {
+                 bubble.style.left = 'auto'; bubble.style.right = '10px';
+            }
+        }
+
         if (this.tutorialElements.overlay) this.tutorialElements.overlay.classList.add('active');
-
-        setTimeout(() => {
-            if (this.tutorialElements.bubble) this.tutorialElements.bubble.classList.add('visible');
-        }, 50);
-
+        setTimeout(() => { bubble.classList.add('visible'); }, 50);
         this.updateTutorialProgress(stepIndex);
     }
 
@@ -893,9 +751,7 @@ export class Chapter1 {
 
     skipTutorial() {
         if (this.tutorialElements.bubble) this.tutorialElements.bubble.classList.remove('visible');
-        setTimeout(() => {
-            this.endTutorial();
-        }, 300);
+        setTimeout(() => { this.endTutorial(); }, 300);
     }
 
     endTutorial() {

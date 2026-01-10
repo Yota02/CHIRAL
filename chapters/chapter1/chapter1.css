@@ -5,16 +5,16 @@
 
 /* Container - positionne en haut a gauche */
 .ch1-container {
-    position: fixed; /* Changé d'absolute à fixed pour ancrage au viewport */
+    position: fixed;
     top: 10px;
     left: 10px;
-    width: auto; /* Changé de 100% à auto pour s'adapter au contenu horizontal */
+    width: auto;
     height: 100%;
     z-index: 15;
     display: flex;
-    flex-direction: row; /* Layout horizontal */
+    flex-direction: row;
     gap: 20px;
-    pointer-events: none; /* Permet les clics canvas a travers les espaces vides */
+    pointer-events: none;
 }
 
 .ch1-container.hidden {
@@ -28,8 +28,8 @@
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     padding: 15px;
-    width: 220px; /* Remis à 220px pour desktop, ajustable */
-    pointer-events: auto; /* Active les clics sur les panneaux */
+    width: 220px;
+    pointer-events: auto;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
@@ -221,7 +221,193 @@
 }
 
 /* =============================================
-   SYSTEME DE TUTORIEL
+   ANIMATION BECHER
+   ============================================= */
+
+.ch1-beaker-container {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    position: relative;
+}
+
+.ch1-beaker {
+    width: 60px;
+    height: 80px;
+    background: rgba(200, 220, 255, 0.15);
+    border: 2px solid rgba(150, 180, 220, 0.6);
+    border-radius: 0 0 10px 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 20px rgba(100, 150, 200, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ch1-beaker::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -5px;
+    right: -5px;
+    height: 10px;
+    background: rgba(150, 180, 220, 0.6);
+    border: 2px solid rgba(150, 180, 220, 0.8);
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+}
+
+.ch1-beaker::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 8px;
+    height: 60%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    border-radius: 3px;
+    pointer-events: none;
+}
+
+.ch1-beaker-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
+    background: linear-gradient(to top,
+        rgba(68, 255, 136, 0.8) 0%,
+        rgba(68, 255, 136, 0.5) 50%,
+        rgba(100, 255, 160, 0.3) 100%);
+    transition: height 0.3s ease-out;
+    border-radius: 0 0 8px 8px;
+}
+
+.ch1-beaker-fill::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -10%;
+    right: -10%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: ch1-liquid-wave 2s ease-in-out infinite;
+}
+
+@keyframes ch1-liquid-wave {
+    0%, 100% { transform: translateX(-5px) scaleY(1); }
+    50% { transform: translateX(5px) scaleY(0.8); }
+}
+
+.ch1-beaker-molecules {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.ch1-beaker-molecule {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(68,255,136,0.6) 100%);
+    border-radius: 50%;
+    animation: ch1-molecule-float 2s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(68, 255, 136, 0.8);
+}
+
+@keyframes ch1-molecule-float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+    50% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+}
+
+.ch1-beaker.emptying .ch1-beaker-fill {
+    animation: ch1-beaker-empty 0.6s ease-in forwards;
+}
+
+@keyframes ch1-beaker-empty {
+    0% { opacity: 1; }
+    50% { height: 0%; opacity: 0.5; }
+    100% { height: 0%; opacity: 0; }
+}
+
+.ch1-beaker.creating {
+    animation: ch1-beaker-flash 0.4s ease-out;
+}
+
+@keyframes ch1-beaker-flash {
+    0% { box-shadow: inset 0 0 20px rgba(100, 150, 200, 0.2), 0 4px 8px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: inset 0 0 30px rgba(68, 255, 136, 0.8), 0 0 20px rgba(68, 255, 136, 0.6); }
+    100% { box-shadow: inset 0 0 20px rgba(100, 150, 200, 0.2), 0 4px 8px rgba(0, 0, 0, 0.3); }
+}
+
+/* =============================================
+   ANIMATION MEDICAMENT VOLANT
+   ============================================= */
+
+.ch1-flying-meds {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.ch1-flying-med {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    pointer-events: none;
+    animation: ch1-med-fly 0.8s ease-in-out forwards;
+}
+
+.ch1-flying-med-plus {
+    font-size: 20px;
+    font-weight: bold;
+    color: #44ff88;
+    text-shadow: 0 0 10px rgba(68, 255, 136, 0.8);
+}
+
+.ch1-flying-med-pill {
+    width: 28px;
+    height: 12px;
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 0 10px rgba(68, 255, 136, 0.4);
+}
+
+.ch1-flying-med-pill-left {
+    width: 50%;
+    height: 100%;
+    background: #E53935;
+    border-radius: 6px 0 0 6px;
+}
+
+.ch1-flying-med-pill-right {
+    width: 50%;
+    height: 100%;
+    background: #FAFAFA;
+    border-radius: 0 6px 6px 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+@keyframes ch1-med-fly {
+    0% { opacity: 1; transform: scale(1.5); }
+    20% { opacity: 1; transform: scale(1.2); }
+    80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.8); }
+}
+
+/* =============================================
+   SYSTEME DE TUTORIEL (NOUVEAU)
    ============================================= */
 
 .ch1-tutorial-overlay {
@@ -230,37 +416,51 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
     z-index: 100;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    display: none; /* Caché par défaut */
 }
 
 .ch1-tutorial-overlay.active {
-    opacity: 1;
-    pointer-events: all;
+    display: block;
+    pointer-events: auto; /* Bloque tout sauf le highlight */
 }
 
+/* Le Spotlight (la zone mise en valeur) */
+.ch1-tutorial-highlight {
+    position: fixed;
+    border: 3px solid #44ff88;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 20px rgba(68, 255, 136, 0.4), /* Lueur interne */
+        0 0 0 9999px rgba(0, 0, 0, 0.85); /* L'ombre qui cache tout le reste */
+    pointer-events: none; /* Important: laisse passer les clics vers le jeu */
+    z-index: 101;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    display: none; /* Caché si pas de cible */
+}
+
+/* La Bulle */
 .ch1-tutorial-bubble {
-    position: absolute;
+    position: fixed; /* Fixé à l'écran */
     background: rgba(20, 20, 20, 0.95);
-    border: 2px solid #44ff88;
+    border: 1px solid #44ff88;
     border-radius: 8px;
     padding: 20px;
-    max-width: 350px;
+    width: 300px;
+    max-width: 90vw;
     color: #FFF;
     font-family: 'Arial', sans-serif;
-    box-shadow: 0 0 30px rgba(68, 255, 136, 0.3);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.8);
     opacity: 0;
-    transform: scale(0.9);
-    transition: all 0.3s ease;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     z-index: 102;
 }
 
 .ch1-tutorial-bubble.visible {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
 }
 
 .ch1-tutorial-title {
@@ -281,13 +481,8 @@
     margin-bottom: 20px;
 }
 
-.ch1-tutorial-content strong {
-    color: #44ff88;
-}
-
-.ch1-tutorial-content em {
-    color: #b944ff;
-}
+.ch1-tutorial-content strong { color: #44ff88; }
+.ch1-tutorial-content em { color: #b944ff; }
 
 .ch1-tutorial-actions {
     display: flex;
@@ -325,29 +520,7 @@
     color: #FFF;
 }
 
-.ch1-tutorial-arrow {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-
-.ch1-tutorial-arrow.down {
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 10px 10px 0 10px;
-    border-color: #44ff88 transparent transparent transparent;
-}
-
-.ch1-tutorial-arrow.left {
-    right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 10px 0 10px 10px;
-    border-color: transparent transparent transparent #44ff88;
-}
-
+/* Les points de progression */
 .ch1-tutorial-progress {
     position: absolute;
     bottom: 30px;
@@ -355,6 +528,7 @@
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
+    z-index: 103;
 }
 
 .ch1-tutorial-dot {
@@ -370,121 +544,51 @@
     transform: scale(1.2);
 }
 
-.ch1-tutorial-highlight {
-    position: fixed;
-    border: 2px solid #44ff88;
-    border-radius: 10px;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); /* Effet de focus */
-    pointer-events: none;
-    z-index: 101;
-    transition: all 0.5s ease;
+/* La flèche dynamique */
+.ch1-tutorial-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: rgba(20, 20, 20, 0.95);
+    border-left: 1px solid #44ff88;
+    border-bottom: 1px solid #44ff88;
+    transform: rotate(45deg);
 }
 
 /* =============================================
-   ANIMATION DE LA PIPETTE (CORRIGÉ)
+   ANIMATION PIPETTE
    ============================================= */
 
 .ch1-pipette-animation {
-    position: fixed;    /* Changé d'absolute à fixed pour viser le centre de l'écran */
-    top: -450px;        /* Départ hors écran (haut) */
-    right: -450px;      /* Départ hors écran (droite) */
-    width: 400px;       /* IMAGE GRANDE */
+    position: fixed;
+    top: -450px;
+    right: -450px;
+    width: 400px;
     height: auto;
     pointer-events: none;
-    z-index: 999;       /* Au-dessus de tout */
+    z-index: 999;
     opacity: 0;
-    /* On retire transform-origin ici pour le gérer via l'image ou le mouvement global */
 }
 
 .ch1-pipette-animation img {
     width: 100%;
     height: auto;
     display: block;
-    /* Rotation : Ajustez les degres selon votre image d'origine. 
-       -135deg est souvent correct pour une seringue verticale qui doit pointer vers le bas-gauche */
-    transform: rotate(-45deg); 
+    transform: rotate(-45deg);
     filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
 }
 
-/* La classe .active déclenche l'animation */
 .ch1-pipette-animation.active {
     animation: ch1-inject-sequence 3.5s ease-in-out forwards;
 }
 
 @keyframes ch1-inject-sequence {
-    /* 0% : Départ (Haut-Droite, Invisible) */
-    0% {
-        top: -450px;
-        right: -450px;
-        opacity: 0;
-    }
-    
-    /* 10% : Apparition en mouvement */
-    10% {
-        opacity: 1;
-    }
-
-    /* 40% : Arrivée sur la bactérie (CENTRE EXACT) */
-    /* Calcul : 50% de l'écran MOINS la moitié de la largeur de l'image (200px) */
-    40% {
-        top: calc(50% - 300px); 
-        right: calc(50% - 280px);
-        opacity: 1;
-    }
-
-    /* 60% : Pause (injection) */
-    60% {
-        top: calc(50% - 250px);
-        right: calc(50% - 280px);
-        opacity: 1;
-    }
-
-    75% {
-        top: calc(50% - 300px);
-        right: calc(50% - 280px);
-        opacity: 1;
-    }
-
-    /* 100% : Repart en arrière vers le Haut-Droite */
-    100% {
-        top: -450px;
-        right: -450px;
-        opacity: 1; 
-    }
-}
-
-/* =============================================
-   AJUSTEMENT MOBILE POUR L'ANIMATION
-   ============================================= */
-
-@media (max-width: 768px) {
-    .ch1-pipette-animation {
-        width: 250px; /* Plus petit sur mobile */
-    }
-
-    /* On doit redéfinir l'animation car la taille (250px) change le point central (125px) */
-    .ch1-pipette-animation.active {
-        animation: ch1-inject-sequence-mobile 3.5s ease-in-out forwards;
-    }
-}
-
-@keyframes ch1-inject-sequence-mobile {
-    0% { top: -300px; right: -300px; opacity: 0; }
+    0% { top: -450px; right: -450px; opacity: 0; }
     10% { opacity: 1; }
-    
-    /* Centre mobile : 50% - 125px (moitié de 250px) */
-    40% {
-        top: calc(50% - 125px);
-        right: calc(50% - 125px);
-        opacity: 1;
-    }
-    60% {
-        top: calc(50% - 125px);
-        right: calc(50% - 125px);
-        opacity: 1;
-    }
-    
-    100% { top: -300px; right: -300px; opacity: 1; }
+    40% { top: calc(50% - 300px); right: calc(50% - 280px); opacity: 1; }
+    60% { top: calc(50% - 250px); right: calc(50% - 280px); opacity: 1; }
+    75% { top: calc(50% - 300px); right: calc(50% - 280px); opacity: 1; }
+    100% { top: -450px; right: -450px; opacity: 1; }
 }
 
 /* =============================================
@@ -493,23 +597,43 @@
 
 @media (max-width: 768px) {
     .ch1-panel {
-        width: 160px; /* Remis à 160px pour mobile */
+        width: 160px;
         padding: 10px;
     }
-    
     .ch1-money { font-size: 18px; }
     
-    .ch1-tutorial-bubble {
-        max-width: 280px;
-        left: 50% !important;
-        transform: translateX(-50%) scale(0.9) !important;
+    .ch1-pipette-animation {
+        width: 250px;
     }
     
-    .ch1-tutorial-bubble.visible {
-        transform: translateX(-50%) scale(1) !important;
+    .ch1-pipette-animation.active {
+        animation: ch1-inject-sequence-mobile 3.5s ease-in-out forwards;
     }
 
-    .ch1-pipette-animation {
-        width: 250px; /* Plus petit sur mobile */
+    /* Ajustement de la bulle tuto mobile */
+    .ch1-tutorial-bubble {
+        width: 90vw;
+        padding: 15px;
     }
+}
+
+@keyframes ch1-inject-sequence-mobile {
+    0% { top: -300px; right: -300px; opacity: 0; }
+    10% { opacity: 1; }
+    40% { top: calc(50% - 125px); right: calc(50% - 125px); opacity: 1; }
+    60% { top: calc(50% - 125px); right: calc(50% - 125px); opacity: 1; }
+    100% { top: -300px; right: -300px; opacity: 1; }
+}
+
+/* Zoom pour grands écrans */
+@media (min-width: 1200px) {
+    .ch1-panel { width: 280px; padding: 20px; }
+    .ch1-money { font-size: 30px; }
+    .ch1-stat-line { font-size: 16px; }
+    .ch1-med-title { font-size: 16px; }
+    .ch1-beaker { width: 75px; height: 100px; }
+    .ch1-pill { width: 28px; height: 12px; }
+    .ch1-upgrade-name, .ch1-upgrade-cost { font-size: 15px; }
+    .ch1-upgrade-desc { font-size: 13px; }
+    .ch1-pipette-animation { width: 500px; }
 }
