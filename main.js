@@ -337,6 +337,11 @@ class Game {
     // ============================================
 
     showDialogue(messages, callback = null) {
+        // Vérification de sécurité : éviter les appels si déjà en dialogue ou si les éléments DOM ne sont pas prêts
+        if (this.state === 'dialogue' || !this.dialogueBox || !this.dialogueText) {
+            console.warn('Dialogue cannot be shown: already active or DOM not ready.');
+            return;
+        }
         this.dialogueQueue = Array.isArray(messages) ? [...messages] : [messages];
         this.onDialogueEnd = callback;
         this.nextDialogue();

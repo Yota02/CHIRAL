@@ -1,90 +1,91 @@
-<!-- Chapter 1 UI Template - La Synthese -->
 <template id="chapter1-template">
   <div id="ch1-ui" class="ch1-container hidden">
 
     <div id="title-screen" class="screen">
-    <!-- MEDICATIONS PANEL (top-right) -->
-    <section id="ch1-medications-panel" class="ch1-panel">
-      <div class="ch1-panel-header">
-        <span id="ch1-money" class="ch1-money">$ 0</span>
-      </div>
-      <div class="ch1-stats">
-        <p id="ch1-total-molecules" class="ch1-stat-line">
-          Totale de molecules: <span>0</span>
-        </p>
-        <p id="ch1-med-progress" class="ch1-stat-line ch1-dim">
-          Prochain med: <span>0</span>/10
-        </p>
-      </div>
-      <h3 id="ch1-med-count" class="ch1-med-title">
-        MEDICAMENTS: <span>0</span>
-      </h3>
-      <div id="ch1-pills-container" class="ch1-pills-grid">
-        <!-- Pills will be dynamically added/removed -->
-      </div>
-    </section>
+      
+      <section id="ch1-medications-panel" class="ch1-panel">
+        <div class="ch1-panel-header">
+          <span id="ch1-money" class="ch1-money">$ 0</span>
+        </div>
+        
+        <div class="ch1-stats">
+          <p id="ch1-total-molecules" class="ch1-stat-line">
+            Total de molécules: <span>0</span>
+          </p>
+          <p id="ch1-med-progress" class="ch1-stat-line ch1-dim">
+            Prochain méd: <span>0</span>/10
+          </p>
+        </div>
 
-    <!-- UPGRADES PANEL (below medications) -->
-    <section id="ch1-upgrades-panel" class="ch1-panel">
-      <div id="ch1-upgrade-0" class="ch1-upgrade" data-index="0">
-        <div class="ch1-upgrade-header">
-          <span class="ch1-upgrade-name">Production +1</span>
-          <span class="ch1-upgrade-cost">$10</span>
-        </div>
-        <div class="ch1-upgrade-info">
-          <span class="ch1-upgrade-level">Niveau: 0/30</span>
-        </div>
-        <p class="ch1-upgrade-desc">Produit 1 molecule/s de plus</p>
-      </div>
+        <h3 id="ch1-med-count" class="ch1-med-title">
+          MÉDICAMENTS: <span>0</span>
+        </h3>
 
-      <div id="ch1-upgrade-1" class="ch1-upgrade" data-index="1">
-        <div class="ch1-upgrade-header">
-          <span class="ch1-upgrade-name">Duree +2s</span>
-          <span class="ch1-upgrade-cost">$15</span>
-        </div>
-        <div class="ch1-upgrade-info">
-          <span class="ch1-upgrade-level">Niveau: 0/30</span>
-        </div>
-        <p class="ch1-upgrade-desc">Les medicaments durent 2s de plus</p>
-      </div>
+        <div id="ch1-pills-container" class="ch1-pills-grid">
+          </div>
+      </section>
 
-      <div id="ch1-upgrade-2" class="ch1-upgrade" data-index="2">
-        <div class="ch1-upgrade-header">
-          <span class="ch1-upgrade-name">Production x2</span>
-          <span class="ch1-upgrade-cost">$50</span>
+      <section id="ch1-upgrades-panel" class="ch1-panel">
+        
+        <div id="ch1-upgrade-0" class="ch1-upgrade" data-index="0">
+          <div class="ch1-upgrade-header">
+            <span class="ch1-upgrade-name">Production +1</span>
+            <span class="ch1-upgrade-cost">$10</span>
+          </div>
+          <div class="ch1-upgrade-info">
+            <span class="ch1-upgrade-level">Niveau: 0/30</span>
+          </div>
+          <p class="ch1-upgrade-desc">Produit 1 molécule/s de plus</p>
         </div>
-        <div class="ch1-upgrade-info">
-          <span class="ch1-upgrade-level">Niveau: 0/15</span>
-        </div>
-        <p class="ch1-upgrade-desc">Double la production de molecules</p>
-      </div>
 
-      <div id="ch1-upgrade-3" class="ch1-upgrade" data-index="3">
-        <div class="ch1-upgrade-header">
-          <span class="ch1-upgrade-name">Duree x1.5</span>
-          <span class="ch1-upgrade-cost">$75</span>
+        <div id="ch1-upgrade-1" class="ch1-upgrade" data-index="1">
+          <div class="ch1-upgrade-header">
+            <span class="ch1-upgrade-name">Durée +2s</span>
+            <span class="ch1-upgrade-cost">$15</span>
+          </div>
+          <div class="ch1-upgrade-info">
+            <span class="ch1-upgrade-level">Niveau: 0/30</span>
+          </div>
+          <p class="ch1-upgrade-desc">Les médicaments durent 2s de plus</p>
         </div>
-        <div class="ch1-upgrade-info">
-          <span class="ch1-upgrade-level">Niveau: 0/15</span>
-        </div>
-        <p class="ch1-upgrade-desc">Augmente la duree de 50%</p>
-      </div>
 
-      <div id="ch1-upgrade-4" class="ch1-upgrade" data-index="4">
-        <div class="ch1-upgrade-header">
-          <span class="ch1-upgrade-name">Bacterie Miroir</span>
-          <span class="ch1-upgrade-cost">$10000</span>
+        <div id="ch1-upgrade-2" class="ch1-upgrade" data-index="2">
+          <div class="ch1-upgrade-header">
+            <span class="ch1-upgrade-name">Production x2</span>
+            <span class="ch1-upgrade-cost">$50</span>
+          </div>
+          <div class="ch1-upgrade-info">
+            <span class="ch1-upgrade-level">Niveau: 0/15</span>
+          </div>
+          <p class="ch1-upgrade-desc">Double la production de molécules</p>
         </div>
-        <div class="ch1-upgrade-info">
-          <span class="ch1-upgrade-level">Niveau: 0/1</span>
-        </div>
-        <p class="ch1-upgrade-desc">Les medicaments ne se degradent plus !</p>
-      </div>
-    </section>
 
-    <!-- SYSTEME DE TUTORIEL -->
+        <div id="ch1-upgrade-3" class="ch1-upgrade" data-index="3">
+          <div class="ch1-upgrade-header">
+            <span class="ch1-upgrade-name">Durée x1.5</span>
+            <span class="ch1-upgrade-cost">$75</span>
+          </div>
+          <div class="ch1-upgrade-info">
+            <span class="ch1-upgrade-level">Niveau: 0/15</span>
+          </div>
+          <p class="ch1-upgrade-desc">Augmente la durée de 50%</p>
+        </div>
+
+        <div id="ch1-upgrade-4" class="ch1-upgrade" data-index="4" style="display: none;">
+          <div class="ch1-upgrade-header">
+            <span class="ch1-upgrade-name">Bactérie Miroir</span>
+            <span class="ch1-upgrade-cost">$10000</span>
+          </div>
+          <div class="ch1-upgrade-info">
+            <span class="ch1-upgrade-level">Niveau: 0/1</span>
+          </div>
+          <p class="ch1-upgrade-desc">Mutation ultime : immortalité des médicaments.</p>
+        </div>
+
+      </section>
+    </div>
+
     <div id="ch1-tutorial-overlay" class="ch1-tutorial-overlay">
-      <!-- Bulle de tutoriel -->
       <div id="ch1-tutorial-bubble" class="ch1-tutorial-bubble">
         <div class="ch1-tutorial-title" id="ch1-tutorial-title">Bienvenue</div>
         <div class="ch1-tutorial-content" id="ch1-tutorial-content">
@@ -97,13 +98,13 @@
         <div class="ch1-tutorial-arrow down"></div>
       </div>
 
-      <!-- Zone de highlight -->
       <div id="ch1-tutorial-highlight" class="ch1-tutorial-highlight" style="display: none;"></div>
 
-      <!-- Indicateur de progression -->
-      <div class="ch1-tutorial-progress" id="ch1-tutorial-progress">
-        <!-- Les points seront ajoutés dynamiquement -->
-      </div>
+      <div class="ch1-tutorial-progress" id="ch1-tutorial-progress"></div>
+    </div>
+
+    <div id="ch1-pipette-animation" class="ch1-pipette-animation">
+      <img id="ch1-pipette-img" src="./img/pipette.png" alt="pipette">
     </div>
 
   </div>

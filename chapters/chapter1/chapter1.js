@@ -1,8 +1,6 @@
 /**
- * CHAPITRE 1 : LA SYNTHESE (Version Hybride Canvas + HTML/CSS)
- *
- * Canvas : Animations (particules, becher, bacterie)
- * HTML/CSS : Interface (upgrades, medicaments)
+ * CHAPITRE 1 : LA SYNTHESE
+ * * Gestion complète du chapitre : Canvas, UI, Upgrades, Animations
  */
 
 export class Chapter1 {
@@ -16,6 +14,8 @@ export class Chapter1 {
         this.mirrorMode = false;
         this.money = 0;
         this.moleculesForMed = 0;
+        this.totalUpgrades = 0;
+        this.bacteriaLevel = 1;
 
         // Configuration
         this.decayRate = 2.0;
@@ -76,7 +76,7 @@ export class Chapter1 {
                 effect: 1.5,
                 hidden: false
             },
-            // --- NOUVEL UPGRADE (Index 4) ---
+            // --- UPGRADE CACHÉE ---
             {
                 name: "Bactérie Miroir",
                 description: "Les médicaments ne se dégradent plus !",
@@ -102,11 +102,19 @@ export class Chapter1 {
         this.petriDishImage = new Image();
         this.petriDishImage.src = './img/boite_de_petri.png';
 
-        this.bacterieImage = new Image();
-        this.bacterieImage.src = './img/bacterie.png';
-
         this.moleculeImage = new Image();
         this.moleculeImage.src = './img/molecule.png';
+
+        this.bacterieImages = [
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image()
+        ];
+        this.bacterieImages[0].src = './img/bacterie_nv1.png';
+        this.bacterieImages[1].src = './img/bacterie_nv2.png';
+        this.bacterieImages[2].src = './img/bacterie_nv3.png';
+        this.bacterieImages[3].src = './img/bacterie_nv4.png';
 
         // --- REFERENCES DOM ---
         this.domElements = {
@@ -116,7 +124,8 @@ export class Chapter1 {
             medProgress: null,
             medCount: null,
             pillsContainer: null,
-            upgrades: []
+            upgrades: [],
+            pipetteAnimation: null
         };
         this.pillElements = [];
 
@@ -132,42 +141,35 @@ export class Chapter1 {
         this.tutorialSteps = [
             {
                 title: "Chapitre 1 : La Synthese",
-                content: "Bienvenue dans le laboratoire. Vous allez creer la premiere <em>bacterie miroir</em>, un organisme a <strong>chiralite inversee</strong>. Les molecules sont les briques de base de toute vie.",
+                content: "Bienvenue dans le laboratoire. Vous allez creer la premiere <em>bacterie miroir</em>, un organisme a <strong>chiralite inversee</strong>.",
                 position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
                 arrow: null,
                 highlight: null
             },
             {
-                title: "Qu'est-ce une molecule ?",
-                content: "Les <strong>molecules</strong> sont des assemblages d'atomes. Dans ce chapitre, vous devez produire des molecules pour alimenter votre bacterie. Plus vous en produisez, plus vous progressez vers votre objectif.",
-                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
-                arrow: null,
-                highlight: null
-            },
-            {
-                title: "La Bacterie (Boite de Petri)",
-                content: "<strong>Cliquez sur la bacterie</strong> au centre de l'ecran pour produire des molecules. Elle genere aussi automatiquement des molecules au fil du temps.",
-                position: { top: '20%', left: '50%', transform: 'translate(-50%, 0)' },
+                title: "La Bacterie",
+                content: "Cliquez sur la <strong>bacterie</strong> au centre pour produire des molecules manuellement.",
+                position: { top: '30%', left: '50%', transform: 'translate(-50%, 0)' },
                 arrow: 'down',
-                highlight: { left: '35%', top: '35%', width: '30%', height: '30%' }
+                highlight: { top: '50%', left: '50%', width: '200px', height: '200px', transform: 'translate(-50%, -50%)', borderRadius: '50%' }
             },
             {
                 title: "Les Medicaments",
-                content: "Toutes les <strong>10 molecules</strong>, vous creez un medicament qui genere de l'<strong>argent ($)</strong>. Les medicaments se degradent avec le temps, alors produisez-en constamment !",
-                position: { top: '15%', left: '250px' },
+                content: "Toutes les <strong>10 molecules</strong>, un medicament est créé. Il genere de l'<strong>argent</strong> tant qu'il est actif.",
+                position: { top: '150px', left: '260px' },
                 arrow: 'left',
-                highlight: { left: '10px', top: '10px', width: '230px', height: '220px' }
+                highlight: { top: '10px', left: '10px', width: '240px', height: '200px', borderRadius: '10px', transform: 'none' }
             },
             {
-                title: "Les Ameliorations (Upgrades)",
-                content: "Utilisez votre argent pour acheter des <strong>ameliorations</strong>. Elles augmentent votre production de molecules ou la duree de vie des medicaments. Cliquez sur une amelioration quand elle devient <strong>verte</strong>.",
-                position: { top: '45%', left: '250px' },
+                title: "Ameliorations",
+                content: "Investissez votre argent pour automatiser la production et augmenter la duree de vie des medicaments.",
+                position: { top: '400px', left: '260px' },
                 arrow: 'left',
-                highlight: { left: '10px', top: '250px', width: '230px', height: '320px' }
+                highlight: { top: '220px', left: '10px', width: '240px', height: '400px', borderRadius: '10px', transform: 'none' }
             },
             {
-                title: "A vous de jouer !",
-                content: "Votre mission : <strong>Remplir le becher avec 1000 molecules</strong> pour declencher la revolution chirale. Produisez des molecules, creez des medicaments, achetez des ameliorations et observez la transformation !",
+                title: "Objectif",
+                content: "Produisez <strong>20 000 molecules</strong> pour déclencher la révolution chirale.",
                 position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
                 arrow: null,
                 highlight: null
@@ -178,29 +180,38 @@ export class Chapter1 {
     }
 
     async init() {
-        // 1. Charger et injecter HTML/CSS
-        await this.loadChapterUI();
+        try {
+            // CORRECTION: Nettoyer l'ancienne UI pour forcer le rechargement correct du HTML
+            const oldUI = document.getElementById('ch1-ui');
+            if (oldUI) oldUI.remove();
 
-        // Petit délai pour s'assurer que le DOM est prêt
-        await new Promise(resolve => setTimeout(resolve, 100));
+            // 1. Charger et injecter HTML/CSS
+            await this.loadChapterUI();
 
-        // 2. Mettre en cache les references DOM
-        this.cacheDOMReferences();
+            // Petit délai pour s'assurer que le DOM est prêt
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-        // 3. Configurer les handlers de clics pour les upgrades
-        this.setupUpgradeHandlers();
+            // 2. Mettre en cache les references DOM
+            this.cacheDOMReferences();
 
-        // 4. Configurer les handlers du tutoriel
-        this.setupTutorialHandlers();
+            // 3. Configurer les handlers de clics pour les upgrades
+            this.setupUpgradeHandlers();
 
-        // 5. Afficher l'UI
-        this.showUI();
+            // 4. Configurer les handlers du tutoriel
+            this.setupTutorialHandlers();
 
-        // 6. Initialiser le jeu
-        this.game.setInstructions('');
+            // 5. Afficher l'UI
+            this.showUI();
 
-        // 7. Demarrer le tutoriel
-        this.startTutorial();
+            // 6. Initialiser le jeu
+            this.game.setInstructions('');
+
+            // 7. Demarrer le tutoriel
+            this.startTutorial();
+        } catch (error) {
+            console.error('Erreur lors de l\'initialisation du chapitre 1:', error);
+            this.game.showDialogue(['Erreur de chargement. Veuillez recharger la page.'], () => {});
+        }
     }
 
     // --- CHARGEMENT HTML/CSS ---
@@ -248,9 +259,10 @@ export class Chapter1 {
         this.domElements.medProgress = document.querySelector('#ch1-med-progress span');
         this.domElements.medCount = document.querySelector('#ch1-med-count span');
         this.domElements.pillsContainer = document.getElementById('ch1-pills-container');
+        this.domElements.pipetteAnimation = document.getElementById('ch1-pipette-animation');
 
-        // Mettre en cache les boutons d'upgrade
         // IMPORTANT: On cherche maintenant 5 upgrades (indices 0 à 4)
+        this.domElements.upgrades = []; // Reset array
         for (let i = 0; i < 5; i++) {
             const el = document.getElementById(`ch1-upgrade-${i}`);
             if (el) {
@@ -260,6 +272,10 @@ export class Chapter1 {
                     cost: el.querySelector('.ch1-upgrade-cost'),
                     level: el.querySelector('.ch1-upgrade-level')
                 });
+            } else {
+                console.warn(`Upgrade element ch1-upgrade-${i} not found`);
+                // Placeholder pour éviter crash index
+                this.domElements.upgrades.push(null);
             }
         }
 
@@ -283,9 +299,11 @@ export class Chapter1 {
 
     setupUpgradeHandlers() {
         this.domElements.upgrades.forEach((upg, index) => {
-            upg.element.addEventListener('click', () => {
-                this.buyUpgrade(index);
-            });
+            if (upg && upg.element) {
+                upg.element.addEventListener('click', () => {
+                    this.buyUpgrade(index);
+                });
+            }
         });
     }
 
@@ -305,11 +323,8 @@ export class Chapter1 {
 
     showUI() {
         if (this.domElements.container) {
-            // Forcer l'affichage
             this.domElements.container.style.display = 'block';
             this.domElements.container.classList.remove('hidden');
-            
-            // Petit délai pour l'animation
             setTimeout(() => {
                 this.domElements.container.style.opacity = '1';
             }, 50);
@@ -383,20 +398,17 @@ export class Chapter1 {
 
         const targetCount = Math.min(this.medications.length, 18); // Max 3 lignes
 
-        // Ajouter des pilules si necessaire
         while (this.pillElements.length < targetCount) {
             const pill = this.createPillElement();
             container.appendChild(pill);
             this.pillElements.push(pill);
         }
 
-        // Supprimer les pilules en trop
         while (this.pillElements.length > targetCount) {
             const pill = this.pillElements.pop();
             pill.remove();
         }
 
-        // Mettre a jour l'opacite (sauf si immortel)
         const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
         
         this.pillElements.forEach((pill, index) => {
@@ -424,29 +436,26 @@ export class Chapter1 {
     updateUpgradesDisplay() {
         this.upgrades.forEach((upgrade, index) => {
             const dom = this.domElements.upgrades[index];
-            if (!dom) return;
+            // CORRECTION: Vérification de sécurité pour éviter le crash si l'élément n'existe pas
+            if (!dom || !dom.element) return;
 
-            // Gérer la visibilité (Hidden)
             if (upgrade.hidden) {
                 dom.element.style.display = 'none';
                 return;
             } else {
-                dom.element.style.display = 'flex'; // ou 'block' selon le CSS d'origine
+                dom.element.style.display = 'block';
             }
 
             const canBuy = this.money >= upgrade.cost && upgrade.level < upgrade.maxLevel;
             const isMaxed = upgrade.level >= upgrade.maxLevel;
 
-            // Mettre a jour les classes
             dom.element.classList.toggle('ch1-can-buy', canBuy && !isMaxed);
             dom.element.classList.toggle('ch1-maxed', isMaxed);
 
-            // Niveau
             if (dom.level) {
                 dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
             }
 
-            // Cout
             if (dom.cost) {
                 dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
             }
@@ -458,14 +467,10 @@ export class Chapter1 {
     update(deltaTime) {
         const { width, height } = this.game.getCanvasSize();
 
-        // 1. Apparition de l'upgrade cachée (10 000 molecules)
+        // 1. Apparition de l'upgrade cachée (1000 molecules pour tester, 10000 reel)
         if (this.totalProduced >= 10000 && this.upgrades[4].hidden) {
             this.upgrades[4].hidden = false;
-            // Notification optionnelle
-            this.game.showDialogue([
-                "Mutation détectée !",
-                "Une nouvelle technologie est disponible."
-            ]);
+            // Supprimé : this.game.showDialogue([...], () => {});
         }
 
         // Generation automatique de molecules
@@ -476,11 +481,11 @@ export class Chapter1 {
             this.totalProduced += 1;
             this.moleculesForMed += 1;
 
-            // Position aleatoire dans la boite de Petri
+            // Position aleatoire dans la boite de Petri (centrée)
             const centerX = width / 2 + 50;
             const centerY = height / 2 + 70;
             const angle = Math.random() * Math.PI * 2;
-            const radius = Math.random() * 150;
+            const radius = Math.random() * 140;
             const randomX = centerX + Math.cos(angle) * radius;
             const randomY = centerY + Math.sin(angle) * radius;
 
@@ -495,17 +500,18 @@ export class Chapter1 {
 
             this.checkMedicationCreation();
 
-            // Verifier si on atteint le seuil pour la revolution miroir
             if (!this.mirrorMode && this.totalProduced >= this.EVENT_THRESHOLD) {
                 this.triggerMirrorRevolution();
             }
         }
 
-        // Input - seulement pour la bacterie (upgrades geres par DOM)
+        // Input
         const mouse = this.game.getMouse();
         if (mouse.clicked) {
-            // Clic sur la bacterie
-            if (this.dist(mouse.x, mouse.y, width / 2 + 50, height / 2 + 70) < 100) {
+            // Clic sur la bacterie (centrée)
+            const centerX = width / 2 + 50;
+            const centerY = height / 2 + 70;
+            if (this.dist(mouse.x, mouse.y, centerX, centerY) < 100) {
                 this.molecules += 1;
                 this.totalProduced += 1;
                 this.moleculesForMed += 1;
@@ -523,7 +529,6 @@ export class Chapter1 {
         this.liquidWavePhase += deltaTime * 3;
         this.updateParticles(deltaTime);
 
-        // Verification de l'upgrade d'immortalité
         const hasImmortality = this.upgrades[4].level > 0;
 
         // Medicaments
@@ -531,9 +536,6 @@ export class Chapter1 {
             let med = this.medications[i];
             this.money += deltaTime;
             
-            // Les medicaments ne se degradent que si :
-            // 1. Pas en mode miroir (fin du jeu)
-            // 2. Pas d'upgrade d'immortalité
             if (!this.mirrorMode && !hasImmortality) {
                 med.life -= deltaTime;
                 if (med.life <= 0) {
@@ -542,7 +544,6 @@ export class Chapter1 {
             }
         }
 
-        // Mettre a jour l'interface DOM
         this.updateDOM();
     }
 
@@ -568,6 +569,8 @@ export class Chapter1 {
         });
     }
 
+    // --- LOGIQUE UPGRADE MISE A JOUR ---
+
     buyUpgrade(upgradeIndex) {
         const upgrade = this.upgrades[upgradeIndex];
 
@@ -579,8 +582,42 @@ export class Chapter1 {
         upgrade.level++;
         upgrade.cost = Math.floor(upgrade.cost * upgrade.costMultiplier);
 
+        this.totalUpgrades++;
+        this.updateBacteriaLevel();
+
         this.recalculateStats();
+
+        // DECLENCHEMENT DE L'ANIMATION PIPETTE
+        this.triggerPipetteAnimation();
+
         return true;
+    }
+
+    updateBacteriaLevel() {
+        if (this.mirrorMode) {
+            this.bacteriaLevel = 4;
+        } else if (this.totalUpgrades >= 20) {
+            this.bacteriaLevel = 3;
+        } else if (this.totalUpgrades >= 10) {
+            this.bacteriaLevel = 2;
+        } else {
+            this.bacteriaLevel = 1;
+        }
+    }
+
+    triggerPipetteAnimation() {
+        const pipette = this.domElements.pipetteAnimation;
+        
+        if (pipette) {
+            // 1. Reset
+            pipette.classList.remove('active');
+            
+            // 2. Force Reflow (astuce pour redémarrer l'animation CSS immédiatement)
+            void pipette.offsetWidth; 
+            
+            // 3. Start
+            pipette.classList.add('active');
+        }
     }
 
     recalculateStats() {
@@ -604,7 +641,6 @@ export class Chapter1 {
                     case "duration_multiplier":
                         durationMultiplier *= Math.pow(upgrade.effect, upgrade.level);
                         break;
-                    // Cas immortality : pas d'effet numérique sur les stats
                     case "immortality":
                         break;
                 }
@@ -619,6 +655,7 @@ export class Chapter1 {
         this.mirrorMode = true;
         this.flashIntensity = 1;
         this.molecules += 100;
+        this.updateBacteriaLevel();
         this.game.showDialogue([
             "OBJECTIF ATTEINT !",
             "Vous avez produit 20 000 molecules.",
@@ -706,6 +743,7 @@ export class Chapter1 {
 
     drawBacteria(ctx, w, h) {
         ctx.save();
+        // Centre de la bactérie (ajusté pour le layout)
         ctx.translate(w / 2 + 50, h / 2 + 70);
 
         if (this.petriDishImage.complete && this.petriDishImage.naturalWidth > 0) {
@@ -720,11 +758,16 @@ export class Chapter1 {
             ctx.stroke();
         }
 
-        if (this.bacterieImage.complete && this.bacterieImage.naturalWidth > 0) {
-            const bw = this.bacterieImage.naturalWidth;
-            const bh = this.bacterieImage.naturalHeight;
+        const image = this.bacterieImages[this.bacteriaLevel - 1];
+        if (image && image.complete && image.naturalWidth > 0) {
+            const bw = image.naturalWidth;
+            const bh = image.naturalHeight;
             const scale = 0.5;
-            ctx.drawImage(this.bacterieImage, -(bw * scale) / 2, -(bh * scale) / 2, bw * scale, bh * scale);
+            // Petite pulsation
+            const pulse = 1 + Math.sin(this.bacteriumPulse) * 0.05;
+            
+            ctx.scale(pulse, pulse);
+            ctx.drawImage(image, -(bw * scale) / 2, -(bh * scale) / 2, bw * scale, bh * scale);
         }
         ctx.restore();
     }
@@ -758,7 +801,6 @@ export class Chapter1 {
         this.tutorialActive = true;
         this.tutorialStep = 0;
 
-        // Creer les indicateurs de progression
         if (this.tutorialElements.progress) {
             this.tutorialElements.progress.innerHTML = '';
             for (let i = 0; i < this.tutorialSteps.length; i++) {
@@ -769,7 +811,6 @@ export class Chapter1 {
             }
         }
 
-        // Afficher la premiere etape
         this.showTutorialStep(0);
     }
 
@@ -781,28 +822,16 @@ export class Chapter1 {
 
         const step = this.tutorialSteps[stepIndex];
 
-        // Mettre a jour le contenu
-        if (this.tutorialElements.title) {
-            this.tutorialElements.title.textContent = step.title;
-        }
-        if (this.tutorialElements.content) {
-            this.tutorialElements.content.innerHTML = step.content;
-        }
+        if (this.tutorialElements.title) this.tutorialElements.title.textContent = step.title;
+        if (this.tutorialElements.content) this.tutorialElements.content.innerHTML = step.content;
 
-        // Mettre a jour la position de la bulle
-        if (this.tutorialElements.bubble) {
-            Object.assign(this.tutorialElements.bubble.style, step.position);
-        }
+        if (this.tutorialElements.bubble) Object.assign(this.tutorialElements.bubble.style, step.position);
 
-        // Mettre a jour la fleche
         if (this.tutorialElements.arrow) {
             this.tutorialElements.arrow.className = 'ch1-tutorial-arrow';
-            if (step.arrow) {
-                this.tutorialElements.arrow.classList.add(step.arrow);
-            }
+            if (step.arrow) this.tutorialElements.arrow.classList.add(step.arrow);
         }
 
-        // Mettre a jour le highlight
         if (this.tutorialElements.highlight) {
             if (step.highlight) {
                 this.tutorialElements.highlight.style.display = 'block';
@@ -812,34 +841,21 @@ export class Chapter1 {
             }
         }
 
-        // Mettre a jour le bouton
         if (this.tutorialElements.nextBtn) {
-            this.tutorialElements.nextBtn.textContent =
-                stepIndex === this.tutorialSteps.length - 1 ? 'Commencer !' : 'Suivant';
+            this.tutorialElements.nextBtn.textContent = stepIndex === this.tutorialSteps.length - 1 ? 'COMMENCER' : 'SUIVANT';
         }
 
-        // Afficher l'overlay et la bulle
-        if (this.tutorialElements.overlay) {
-            this.tutorialElements.overlay.classList.add('active');
-        }
+        if (this.tutorialElements.overlay) this.tutorialElements.overlay.classList.add('active');
 
         setTimeout(() => {
-            if (this.tutorialElements.bubble) {
-                this.tutorialElements.bubble.classList.add('visible');
-            }
+            if (this.tutorialElements.bubble) this.tutorialElements.bubble.classList.add('visible');
         }, 50);
 
-        // Mettre a jour la progression
         this.updateTutorialProgress(stepIndex);
     }
 
     nextTutorialStep() {
-        // Masquer la bulle actuelle
-        if (this.tutorialElements.bubble) {
-            this.tutorialElements.bubble.classList.remove('visible');
-        }
-
-        // Attendre la fin de l'animation avant de passer a l'etape suivante
+        if (this.tutorialElements.bubble) this.tutorialElements.bubble.classList.remove('visible');
         setTimeout(() => {
             this.tutorialStep++;
             this.showTutorialStep(this.tutorialStep);
@@ -847,10 +863,7 @@ export class Chapter1 {
     }
 
     skipTutorial() {
-        if (this.tutorialElements.bubble) {
-            this.tutorialElements.bubble.classList.remove('visible');
-        }
-
+        if (this.tutorialElements.bubble) this.tutorialElements.bubble.classList.remove('visible');
         setTimeout(() => {
             this.endTutorial();
         }, 300);
@@ -858,28 +871,16 @@ export class Chapter1 {
 
     endTutorial() {
         this.tutorialActive = false;
-
-        // Masquer l'overlay
-        if (this.tutorialElements.overlay) {
-            this.tutorialElements.overlay.classList.remove('active');
-        }
-
-        // Masquer le highlight
-        if (this.tutorialElements.highlight) {
-            this.tutorialElements.highlight.style.display = 'none';
-        }
+        if (this.tutorialElements.overlay) this.tutorialElements.overlay.classList.remove('active');
+        if (this.tutorialElements.highlight) this.tutorialElements.highlight.style.display = 'none';
     }
 
     updateTutorialProgress(currentStep) {
         if (!this.tutorialElements.progress) return;
-
         const dots = this.tutorialElements.progress.querySelectorAll('.ch1-tutorial-dot');
         dots.forEach((dot, index) => {
-            if (index === currentStep) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
+            if (index === currentStep) dot.classList.add('active');
+            else dot.classList.remove('active');
         });
     }
 }

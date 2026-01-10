@@ -7,12 +7,14 @@
 .ch1-container {
     position: absolute;
     top: 10px;
-    left: 10px; /* Changed from right to left */
+    left: 10px;
+    width: 100%;
+    height: 100%;
     z-index: 15;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    pointer-events: none; /* Permet les clics canvas a travers les espaces */
+    pointer-events: none; /* Permet les clics canvas a travers les espaces vides */
 }
 
 .ch1-container.hidden {
@@ -21,12 +23,14 @@
 
 /* Panneaux - style partage */
 .ch1-panel {
-    background: rgba(0, 0, 0, 0.7);
+    position: relative;
+    background: rgba(0, 0, 0, 0.8);
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     padding: 15px;
-    width: 210px;
+    width: 220px;
     pointer-events: auto; /* Active les clics sur les panneaux */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 /* =============================================
@@ -37,15 +41,24 @@
     min-height: 180px;
 }
 
+.ch1-panel-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
 .ch1-money {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     color: #FFD700;
     font-family: 'Courier New', monospace;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
 
 .ch1-stats {
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .ch1-stat-line {
@@ -53,6 +66,8 @@
     color: #44ff88;
     margin: 5px 0;
     font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: space-between;
 }
 
 .ch1-stat-line.ch1-dim {
@@ -62,6 +77,7 @@
 
 .ch1-stat-line.ch1-mirror {
     color: #b944ff;
+    text-shadow: 0 0 5px #b944ff;
 }
 
 .ch1-med-title {
@@ -69,8 +85,9 @@
     font-weight: bold;
     color: #FFF;
     text-align: center;
-    margin: 10px 0;
+    margin: 15px 0 5px 0;
     font-family: 'Arial', sans-serif;
+    letter-spacing: 1px;
 }
 
 /* Grille de pilules */
@@ -79,15 +96,19 @@
     grid-template-columns: repeat(6, 1fr);
     gap: 8px 5px;
     min-height: 50px;
+    background: rgba(255,255,255,0.05);
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .ch1-pill {
     width: 22px;
-    height: 8px;
-    border-radius: 4px;
+    height: 10px;
+    border-radius: 5px;
     display: flex;
     overflow: hidden;
     transition: opacity 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .ch1-pill-left {
@@ -112,16 +133,20 @@
 #ch1-upgrades-panel {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .ch1-upgrade {
-    background: rgba(50, 50, 50, 0.7);
-    border: 2px solid rgba(100, 100, 100, 0.5);
+    background: rgba(60, 60, 60, 0.6);
+    border: 1px solid rgba(100, 100, 100, 0.5);
     border-radius: 5px;
-    padding: 8px 10px;
-    cursor: pointer;
+    padding: 10px;
+    cursor: not-allowed;
     transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .ch1-upgrade:hover {
@@ -129,18 +154,21 @@
 }
 
 .ch1-upgrade.ch1-can-buy {
-    background: rgba(0, 150, 0, 0.7);
-    border-color: rgba(0, 255, 0, 0.8);
+    background: rgba(0, 100, 0, 0.6);
+    border-color: rgba(0, 255, 0, 0.5);
+    cursor: pointer;
 }
 
 .ch1-upgrade.ch1-can-buy:hover {
-    background: rgba(0, 180, 0, 0.8);
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    background: rgba(0, 140, 0, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    transform: translateX(5px);
 }
 
 .ch1-upgrade.ch1-maxed {
-    background: rgba(100, 100, 100, 0.7);
-    border-color: rgba(150, 150, 150, 0.5);
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(100, 100, 100, 0.3);
+    opacity: 0.6;
     cursor: default;
 }
 
@@ -148,20 +176,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 2px;
 }
 
 .ch1-upgrade-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     color: #FFF;
     font-family: 'Arial', sans-serif;
 }
 
 .ch1-upgrade-cost {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
-    color: #888;
-    font-family: 'Arial', sans-serif;
+    color: #999;
+    font-family: 'Courier New', monospace;
 }
 
 .ch1-upgrade.ch1-can-buy .ch1-upgrade-cost {
@@ -169,29 +198,27 @@
 }
 
 .ch1-upgrade.ch1-maxed .ch1-upgrade-cost {
-    color: #FFD700;
+    color: #888;
+    text-decoration: line-through;
 }
 
 .ch1-upgrade-info {
-    margin-top: 3px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .ch1-upgrade-level {
-    font-size: 11px;
+    font-size: 10px;
     color: #AAA;
-    font-family: 'Arial', sans-serif;
+    font-style: italic;
 }
 
 .ch1-upgrade-desc {
-    font-size: 9px;
-    color: #999;
-    margin-top: 3px;
-    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: #CCC;
+    margin-top: 4px;
+    line-height: 1.2;
 }
-
-/* =============================================
-   RESPONSIVE
-   ============================================= */
 
 /* =============================================
    SYSTEME DE TUTORIEL
@@ -218,17 +245,17 @@
 .ch1-tutorial-bubble {
     position: absolute;
     background: rgba(20, 20, 20, 0.95);
-    border: 3px solid #44ff88;
-    border-radius: 15px;
+    border: 2px solid #44ff88;
+    border-radius: 8px;
     padding: 20px;
     max-width: 350px;
     color: #FFF;
     font-family: 'Arial', sans-serif;
-    box-shadow: 0 0 30px rgba(68, 255, 136, 0.5);
+    box-shadow: 0 0 30px rgba(68, 255, 136, 0.3);
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.9);
     transition: all 0.3s ease;
-    z-index: 102; /* Above highlight */
+    z-index: 102;
 }
 
 .ch1-tutorial-bubble.visible {
@@ -242,13 +269,16 @@
     color: #44ff88;
     margin-bottom: 10px;
     font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    border-bottom: 1px solid #44ff88;
+    padding-bottom: 5px;
 }
 
 .ch1-tutorial-content {
     font-size: 14px;
     line-height: 1.6;
     color: #DDD;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .ch1-tutorial-content strong {
@@ -269,12 +299,14 @@
     padding: 8px 16px;
     background: #44ff88;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     color: #111;
     font-weight: bold;
     cursor: pointer;
     font-family: 'Arial', sans-serif;
     transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 12px;
 }
 
 .ch1-tutorial-btn:hover {
@@ -283,12 +315,14 @@
 }
 
 .ch1-tutorial-btn.secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: #FFF;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #AAA;
 }
 
 .ch1-tutorial-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFF;
 }
 
 .ch1-tutorial-arrow {
@@ -298,37 +332,25 @@
     border-style: solid;
 }
 
-/* Fleche pointant vers le bas */
 .ch1-tutorial-arrow.down {
-    bottom: -15px;
+    bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
-    border-width: 15px 15px 0 15px;
+    border-width: 10px 10px 0 10px;
     border-color: #44ff88 transparent transparent transparent;
 }
 
-/* Fleche pointant vers la gauche */
 .ch1-tutorial-arrow.left {
-    right: -15px;
+    right: -10px;
     top: 50%;
     transform: translateY(-50%);
-    border-width: 15px 0 15px 15px;
+    border-width: 10px 0 10px 10px;
     border-color: transparent transparent transparent #44ff88;
 }
 
-/* Fleche pointant vers la droite */
-.ch1-tutorial-arrow.right {
-    left: -15px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 15px 15px 15px 0;
-    border-color: transparent #44ff88 transparent transparent;
-}
-
-/* Indicateur de progression */
 .ch1-tutorial-progress {
     position: absolute;
-    bottom: 20px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -336,8 +358,8 @@
 }
 
 .ch1-tutorial-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.3);
     transition: background 0.3s ease;
@@ -345,26 +367,76 @@
 
 .ch1-tutorial-dot.active {
     background: #44ff88;
-    box-shadow: 0 0 10px rgba(68, 255, 136, 0.8);
+    transform: scale(1.2);
 }
 
-/* Zone de highlight pour mettre en evidence les elements */
 .ch1-tutorial-highlight {
-    position: fixed; /* Changed from absolute to fixed for better positioning */
-    border: 3px solid #44ff88;
+    position: fixed;
+    border: 2px solid #44ff88;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(68, 255, 136, 0.6), inset 0 0 20px rgba(68, 255, 136, 0.2);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); /* Effet de focus */
     pointer-events: none;
-    z-index: 101; /* Above overlay (100) but below bubble (102) */
-    animation: ch1-pulse 2s ease-in-out infinite;
+    z-index: 101;
+    transition: all 0.5s ease;
 }
 
-@keyframes ch1-pulse {
-    0%, 100% {
-        box-shadow: 0 0 20px rgba(68, 255, 136, 0.6), inset 0 0 20px rgba(68, 255, 136, 0.2);
+/* =============================================
+   ANIMATION DE LA PIPETTE (MODIFIÉ)
+   ============================================= */
+
+.ch1-pipette-animation {
+    position: absolute;
+    top: -400px;    /* Départ hors écran (haut) */
+    right: -400px;  /* Départ hors écran (droite) */
+    width: 400px;   /* IMAGE GRANDE */
+    height: auto;
+    pointer-events: none;
+    z-index: 999;   /* Au-dessus de tout */
+    opacity: 0;
+    transform-origin: center center;
+}
+
+.ch1-pipette-animation img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* Inclinaison pour pointer vers le centre depuis le haut-droit */
+    transform: rotate(-45deg); 
+    filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+}
+
+/* La classe .active déclenche l'animation */
+.ch1-pipette-animation.active {
+    animation: ch1-inject-sequence 3s ease-in-out forwards;
+}
+
+@keyframes ch1-inject-sequence {
+    /* 0% : Départ (invisible et loin) */
+    0% {
+        top: -400px;
+        right: -400px;
+        opacity: 1;
     }
-    50% {
-        box-shadow: 0 0 40px rgba(68, 255, 136, 1), inset 0 0 40px rgba(68, 255, 136, 0.4);
+    
+    /* 40% : Arrivée sur la bactérie (centre de l'écran approximatif) */
+    40% {
+        top: calc(50% - 300px); /* Ajustement pour que la pointe touche le centre */
+        right: calc(50% - 200px);
+        opacity: 1;
+    }
+
+    /* 60% : Pause (injection) */
+    60% {
+        top: calc(50% - 300px);
+        right: calc(50% - 200px);
+        opacity: 1;
+    }
+
+    /* 100% : Repart en arrière */
+    100% {
+        top: -400px;
+        right: -400px;
+        opacity: 1; /* Reste visible jusqu'à la sortie */
     }
 }
 
@@ -373,30 +445,24 @@
    ============================================= */
 
 @media (max-width: 768px) {
-    .ch1-container {
-        left: 5px; /* Changed from right to left */
-        top: 5px;
-    }
-
     .ch1-panel {
-        width: 180px;
+        width: 160px;
         padding: 10px;
     }
-
-    .ch1-upgrade {
-        padding: 6px 8px;
-    }
-
+    
+    .ch1-money { font-size: 18px; }
+    
     .ch1-tutorial-bubble {
         max-width: 280px;
-        padding: 15px;
+        left: 50% !important;
+        transform: translateX(-50%) scale(0.9) !important;
+    }
+    
+    .ch1-tutorial-bubble.visible {
+        transform: translateX(-50%) scale(1) !important;
     }
 
-    .ch1-tutorial-title {
-        font-size: 16px;
-    }
-
-    .ch1-tutorial-content {
-        font-size: 12px;
+    .ch1-pipette-animation {
+        width: 250px; /* Plus petit sur mobile */
     }
 }
