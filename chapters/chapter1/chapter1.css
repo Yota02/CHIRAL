@@ -585,9 +585,9 @@
 @keyframes ch1-inject-sequence {
     0% { top: -450px; right: -450px; opacity: 0; }
     10% { opacity: 1; }
-    40% { top: calc(50% - 300px); right: calc(50% - 280px); opacity: 1; }
-    60% { top: calc(50% - 250px); right: calc(50% - 280px); opacity: 1; }
-    75% { top: calc(50% - 300px); right: calc(50% - 280px); opacity: 1; }
+    40% { top: calc(50% - 550px); right: calc(50% - 400px); opacity: 1; }
+    60% { top: calc(50% - 450px); right: calc(50% - 400px); opacity: 1; }
+    75% { top: calc(50% - 550px); right: calc(50% - 400px); opacity: 1; }
     100% { top: -450px; right: -450px; opacity: 1; }
 }
 

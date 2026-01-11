@@ -64,11 +64,7 @@ class Game {
         this.endMessage = document.getElementById('end-message');
         this.endText = document.getElementById('end-text');
         this.startButton = document.getElementById('start-button');
-        // Supprimer les références au menu des chapitres
-        // this.chapterMenuToggle = document.getElementById('chapter-menu-toggle');
-        // this.chapterList = document.getElementById('chapter-list');
-        // this.chapterSelectBtns = document.querySelectorAll('.chapter-select-btn');
-
+        
         // Etat du jeu
         this.state = 'title';  // title, transition, playing, dialogue, ending
         this.currentChapter = 0;
@@ -113,21 +109,6 @@ class Game {
 
         // Bouton de demarrage
         this.startButton.addEventListener('click', () => this.startGame());
-
-        // Supprimer les écouteurs pour le menu des chapitres
-        // this.chapterMenuToggle.addEventListener('click', () => {
-        //     this.chapterList.classList.toggle('hidden');
-        // });
-
-        // this.chapterSelectBtns.forEach(btn => {
-        //     btn.addEventListener('click', () => {
-        //         const chapterIndex = parseInt(btn.dataset.chapter);
-        //         this.chapterList.classList.add('hidden');
-        //         this.titleScreen.classList.remove('active');
-        //         this.titleScreen.classList.add('hidden');
-        //         this.startChapter(chapterIndex);
-        //     });
-        // });
 
         // Bouton continuer (dialogue)
         this.continueButton.addEventListener('click', () => this.advanceDialogue());
@@ -339,7 +320,6 @@ class Game {
     showDialogue(messages, callback = null) {
         // Vérification de sécurité : éviter les appels si déjà en dialogue ou si les éléments DOM ne sont pas prêts
         if (this.state === 'dialogue' || !this.dialogueBox || !this.dialogueText) {
-            console.warn('Dialogue cannot be shown: already active or DOM not ready.');
             return;
         }
         this.dialogueQueue = Array.isArray(messages) ? [...messages] : [messages];

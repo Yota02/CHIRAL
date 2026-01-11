@@ -24,7 +24,7 @@ export class Chapter1 {
         this.moleculeThreshold = 10;
 
         // Seuils & Objectifs
-        this.EVENT_THRESHOLD = 15000;
+        this.EVENT_THRESHOLD = 10;  // Changé de 15000 à 20000 pour correspondre à la demande et au tutoriel
 
         // Entites
         this.particles = [];
@@ -139,6 +139,10 @@ export class Chapter1 {
 
         this.bacteriaXOffset = 0;
         this.bacteriaYOffset = 0;
+
+        this.transitionActive = false;
+        this.transitionTimer = 0;
+        this.transitionDuration = 2.0; // Durée de la transition en secondes
 
         this.init();
     }
@@ -447,8 +451,8 @@ export class Chapter1 {
             this.spawnParticle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, "", this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
             
             this.checkMedicationCreation();
-            if (!this.mirrorMode && this.totalProduced >= this.EVENT_THRESHOLD) {
-                this.triggerMirrorRevolution();
+            if (!this.mirrorMode && this.totalProduced >= this.EVENT_THRESHOLD && !this.transitionActive) {
+                this.startTransition();
             }
         }
 
@@ -484,7 +488,30 @@ export class Chapter1 {
             }
         }
 
+        // Gestion de la transition
+        if (this.transitionActive) {
+            this.transitionTimer += deltaTime;
+            if (this.transitionTimer >= this.transitionDuration) {
+                this.transitionActive = false;
+                this.triggerJournalDisplay();
+            }
+        }
+
         this.updateDOM();
+    }
+
+    startTransition() {
+        this.transitionActive = true;
+        this.transitionTimer = 0;
+        // Spawn un burst de particules pour l'effet visuel
+        const { width, height } = this.game.getCanvasSize();
+        const centerX = width / 2 + 50;
+        const centerY = height / 2 + 70;
+        for (let i = 0; i < 20; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = Math.random() * 200;
+            this.spawnParticle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, "", this.colors.LIFE_MIRROR, false, this.moleculeImage);
+        }
     }
 
     checkMedicationCreation() {
@@ -557,16 +584,68 @@ export class Chapter1 {
         this.moleculeThreshold = Math.max(1, 10 - thresholdReduction);
     }
 
-    triggerMirrorRevolution() {
-        this.mirrorMode = true;
-        this.molecules += 100;
-        this.updateBacteriaLevel();
-        this.game.showDialogue([
-            "OBJECTIF ATTEINT !", "Vous avez produit 20 000 molécules.",
-            "La première bactérie miroir est prête.", "La révolution chirale commence..."
-        ], () => {
-            this.game.chapterComplete("Chapitre 1 terminé");
+    // Nouvelle méthode pour afficher le journal
+    async triggerJournalDisplay() {
+        this.mirrorMode = false;  // Pas d'activation du mode miroir ici
+        // Pas d'ajout de molécules bonus
+
+        // Créer l'overlay pour le journal
+        const overlay = document.createElement('div');
+        overlay.id = 'ch1-journal-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '1000';
+        overlay.style.fontFamily = 'monospace';
+        overlay.style.color = '#00ff00';
+        overlay.style.whiteSpace = 'pre-wrap';
+        overlay.style.overflowY = 'auto';
+        overlay.style.padding = '20px';
+
+        // Charger et afficher le contenu du journal
+        try {
+            const response = await fetch('./chapters/chapter1/assets/journal.md');
+            const journalContent = await response.text();
+            overlay.innerText = journalContent;  // Affichage brut du Markdown (ASCII art)
+        } catch (error) {
+            overlay.innerText = 'Erreur lors du chargement du journal.';
+            console.error('Erreur chargement journal:', error);
+        }
+
+        // Ajouter le bouton flèche en bas
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.position = 'absolute';
+        buttonContainer.style.bottom = '20px';
+        buttonContainer.style.right = '20px';  // Positionner à droite au lieu de centré
+        buttonContainer.style.textAlign = 'right';  // Alignement à droite
+
+        const arrowButton = document.createElement('button');
+        arrowButton.innerHTML = '→';  // Flèche simple
+        arrowButton.style.fontSize = '64px';  // Agrandir la flèche (de 48px à 64px)
+        arrowButton.style.background = 'none';
+        arrowButton.style.border = 'none';
+        arrowButton.style.color = '#00ff00';
+        arrowButton.style.cursor = 'pointer';
+        arrowButton.style.padding = '10px';
+        arrowButton.addEventListener('click', () => {
+            overlay.remove();  // Cacher l'overlay
+            setTimeout(() => {
+                this.game.startChapter(2);  // Corriger pour passer au chapitre 2
+            }, 100);  // Petit délai pour permettre la suppression de l'overlay
         });
+
+        buttonContainer.appendChild(arrowButton);
+        overlay.appendChild(buttonContainer);
+
+        // Ajouter à la page
+        document.body.appendChild(overlay);
     }
 
     // --- PARTICLES ---
