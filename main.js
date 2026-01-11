@@ -13,7 +13,7 @@
 // ============================================
 
 import { Chapter1 } from './chapters/chapter1/chapter1.js';
-import { Chapter2 } from './chapters/chapter2.js';
+import { Chapter2 } from './chapters/chapter2/chapter2.js';
 import { Chapter3 } from './chapters/chapter3.js';
 import { Chapter4 } from './chapters/chapter4.js';
 import { Chapter5 } from './chapters/chapter5.js';

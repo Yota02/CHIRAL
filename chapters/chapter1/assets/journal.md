@@ -21,7 +21,7 @@
 
 >>> FLASH INFO >>> LA "VIE MIROIR" N'EST PLUS DE LA SCIENCE-FICTION.
 
-╔════ VISUEL DU JOUR ════╗  ░░░  [COLONNE 1 : LA DÉCOUVERTE]
+╔════ VISUEL DU JOUR ════╗  ░░░             [LA DÉCOUVERTE]
 ║                        ║  ░░░
 ║    [L-ADN]  [D-ADN]    ║  ░░░  GENÈVE (AP-Pixel) - C'est la découverte
 ║     ▄█▀▀█▄   ▄█▀▀█▄    ║  ░░░  du siècle. Une équipe internationale a
@@ -33,11 +33,11 @@
 ║     ▀█▄▄█▀   ▀█▄▄█▀    ║  ░░░  "droitière" (acides aminés D). Cette
 ║                        ║  ░░░  chiralité inversée signifie que ces
 ║ > LE MONDE INVERSÉ <   ║  ░░░  organismes sont l'image spéculaire de
-║ (Img: Simulation 8bit) ║  ░░░  notre biologie. Ils étaient invisibles
+║                        ║  ░░░  notre biologie. Ils étaient invisibles
 ╚════════════════════════╝  ░░░  à nos tests standards jusqu'à aujourd'hui.
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-[COLONNE 2 : RÉVOLUTION PHARMA]    [COLONNE 3 : LE FUTUR EN PIXELS]
+     [RÉVOLUTION PHARMA]                  [LE FUTUR EN PIXELS]
 
 L'impact pour la pharmacologie   |  Des "super-médicaments" pourraient
 est sismique. Nos corps et les   |  voir le jour d'ici 5 ans.
