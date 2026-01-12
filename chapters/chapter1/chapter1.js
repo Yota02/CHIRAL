@@ -24,7 +24,7 @@ export class Chapter1 {
         this.moleculeThreshold = 10;
 
         // Seuils & Objectifs
-        this.EVENT_THRESHOLD = 10;  // Changé de 15000 à 20000 pour correspondre à la demande et au tutoriel
+        this.EVENT_THRESHOLD = 20000;
 
         // Entites
         this.particles = [];
@@ -108,19 +108,19 @@ export class Chapter1 {
             {
                 title: "Chapitre 1 : La Synthèse",
                 content: "Bienvenue dans le laboratoire. Vous allez créer la première <em>bactérie miroir</em>, un organisme à <strong>chiralité inversée</strong>.",
-                target: null, // Pas de cible, centré
+                target: null,
                 placement: 'center'
             },
             {
                 title: "La Bactérie",
                 content: "Cliquez sur la <strong>bactérie</strong> au centre pour produire des molécules manuellement.",
-                target: 'canvas-center', // Cible spéciale calculée dynamiquement
+                target: 'canvas-center',
                 placement: 'bottom'
             },
             {
                 title: "Les Médicaments",
                 content: "Toutes les <strong>10 molécules</strong>, un médicament est créé ici. Il génère de l'<strong>argent</strong> tant qu'il est actif.",
-                target: '#ch1-medications-panel', // Cible l'ID HTML réel
+                target: '#ch1-medications-panel',
                 placement: 'right'
             },
             {
@@ -132,7 +132,7 @@ export class Chapter1 {
             {
                 title: "Objectif",
                 content: "Produisez <strong>20 000 molécules</strong> pour déclencher la révolution chirale.",
-                target: '#ch1-total-molecules', // Cible le texte du score
+                target: '#ch1-total-molecules',
                 placement: 'bottom'
             }
         ];
@@ -432,25 +432,50 @@ export class Chapter1 {
             this.upgrades[4].hidden = false;
         }
 
-        // Auto generation
+        // --- CORRECTION APPLIQUÉE ICI : Auto generation ---
+        // Utilisation du temps cumulé pour gérer les hautes vitesses de production
         this.moleculeTimer += deltaTime;
-        if (this.moleculeTimer >= 1.0 / this.moleculeRate) {
-            this.moleculeTimer = 0;
-            this.molecules += 1;
-            this.totalProduced += 1;
-            this.moleculesForMed += 1;
+        const timePerMolecule = 1.0 / this.moleculeRate;
 
+        // Si on a assez de temps pour produire une ou plusieurs molécules
+        if (this.moleculeTimer >= timePerMolecule) {
+            
+            // On calcule combien de molécules on doit produire dans ce laps de temps
+            const numToProduce = Math.floor(this.moleculeTimer / timePerMolecule);
+            
+            // Mise à jour des stocks
+            this.molecules += numToProduce;
+            this.totalProduced += numToProduce;
+            this.moleculesForMed += numToProduce;
+
+            // On retire le temps consommé (et on garde le surplus pour la prochaine frame pour être précis)
+            this.moleculeTimer -= (numToProduce * timePerMolecule);
+
+            // Effets Visuels : On limite à 1 particule par frame pour ne pas surcharger
             const centerX = width / 2 + 50;
             const centerY = height / 2 + 70;
             const angle = Math.random() * Math.PI * 2;
             const radius = Math.random() * 140;
-            this.spawnParticle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, "", this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
+            
+            // Affiche "+N" si on en produit plusieurs d'un coup
+            const textDisplay = numToProduce > 1 ? `+${numToProduce}` : "";
+            
+            this.spawnParticle(
+                centerX + Math.cos(angle) * radius, 
+                centerY + Math.sin(angle) * radius, 
+                textDisplay, 
+                this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, 
+                false, 
+                this.moleculeImage
+            );
             
             this.checkMedicationCreation();
+            
             if (!this.mirrorMode && this.totalProduced >= this.EVENT_THRESHOLD) {
-                this.triggerJournalDisplay();  // Remplacé par triggerJournalDisplay au lieu de triggerMirrorRevolution
+                this.triggerJournalDisplay();
             }
         }
+        // --- FIN DE LA CORRECTION ---
 
         // Click Input
         const mouse = this.game.getMouse();
@@ -467,10 +492,10 @@ export class Chapter1 {
             }
         }
 
-        // Animation de la bactérie : flottement subtil
+        // Animation de la bactérie
         const time = this.game.getTime ? this.game.getTime() : performance.now() / 1000;
-        this.bacteriaXOffset = Math.sin(time * 1.5) * 6; // Oscillation horizontale légère (augmentée)
-        this.bacteriaYOffset = Math.cos(time * 1.2) * 4; // Oscillation verticale légère (augmentée)
+        this.bacteriaXOffset = Math.sin(time * 1.5) * 6;
+        this.bacteriaYOffset = Math.cos(time * 1.2) * 4;
 
         // Logic
         this.updateParticles(deltaTime);
@@ -488,14 +513,18 @@ export class Chapter1 {
     }
 
     checkMedicationCreation() {
+        // Boucle pour créer autant de médicaments que possible si on a beaucoup de molécules
         while (this.moleculesForMed >= this.moleculeThreshold && this.molecules >= this.moleculeThreshold) {
             this.moleculesForMed -= this.moleculeThreshold;
             this.molecules -= this.moleculeThreshold;
             this.spawnMedication();
             const { width, height } = this.game.getCanvasSize();
-            this.spawnParticle(80, height - 200, `-${this.moleculeThreshold}`, "#ff4444");
-            this.triggerBeakerEmptyAnimation();
-            this.spawnFlyingMedication();
+            // Effet visuel seulement si c'est raisonnable (pour éviter spam visuel si production massive)
+            if (this.medications.length < 200) { 
+                this.spawnParticle(80, height - 200, `-${this.moleculeThreshold}`, "#ff4444");
+                this.triggerBeakerEmptyAnimation();
+                this.spawnFlyingMedication();
+            }
         }
     }
 
@@ -557,12 +586,9 @@ export class Chapter1 {
         this.moleculeThreshold = Math.max(1, 10 - thresholdReduction);
     }
 
-    // Nouvelle méthode pour afficher le journal
     async triggerJournalDisplay() {
-        this.mirrorMode = false;  // Pas d'activation du mode miroir ici
-        // Pas d'ajout de molécules bonus
+        this.mirrorMode = false;
 
-        // Créer l'overlay pour le journal
         const overlay = document.createElement('div');
         overlay.id = 'ch1-journal-overlay';
         overlay.style.position = 'fixed';
@@ -581,29 +607,27 @@ export class Chapter1 {
         overlay.style.whiteSpace = 'pre-wrap';
         overlay.style.overflowY = 'auto';
         overlay.style.padding = '20px';
-        overlay.style.opacity = '0';  // Démarrer invisible
-        overlay.style.transition = 'opacity 1s ease';  // Transition fluide
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 1s ease';
 
-        // Charger et afficher le contenu du journal
         try {
             const response = await fetch('./chapters/chapter1/assets/journal.md');
             const journalContent = await response.text();
-            overlay.innerText = journalContent;  // Affichage brut du Markdown (ASCII art)
+            overlay.innerText = journalContent;
         } catch (error) {
             overlay.innerText = 'Erreur lors du chargement du journal.';
             console.error('Erreur chargement journal:', error);
         }
 
-        // Ajouter le bouton flèche en bas
         const buttonContainer = document.createElement('div');
         buttonContainer.style.position = 'absolute';
         buttonContainer.style.bottom = '20px';
-        buttonContainer.style.right = '20px';  // Positionner à droite au lieu de centré
-        buttonContainer.style.textAlign = 'right';  // Alignement à droite
+        buttonContainer.style.right = '20px';
+        buttonContainer.style.textAlign = 'right';
 
         const arrowButton = document.createElement('button');
-        arrowButton.innerHTML = '→';  // Flèche simple
-        arrowButton.style.fontSize = '64px';  // Agrandir la flèche (de 48px à 64px)
+        arrowButton.innerHTML = '→';
+        arrowButton.style.fontSize = '64px';
         arrowButton.style.background = 'none';
         arrowButton.style.border = 'none';
         arrowButton.style.color = '#00ff00';
@@ -618,9 +642,7 @@ export class Chapter1 {
         buttonContainer.appendChild(arrowButton);
         overlay.appendChild(buttonContainer);
 
-        // Ajouter à la page et animer l'apparition
         document.body.appendChild(overlay);
-        // Petit délai pour permettre au DOM de se mettre à jour avant l'animation
         setTimeout(() => {
             overlay.style.opacity = '1';
         }, 50);
@@ -665,12 +687,12 @@ export class Chapter1 {
 
     drawBacteria(ctx, w, h) {
         ctx.save();
-        ctx.translate(w / 2 + 50, h / 2 + 70);  // Position fixe pour la boîte de Petri
+        ctx.translate(w / 2 + 50, h / 2 + 70);
         if (this.petriDishImage.complete) ctx.drawImage(this.petriDishImage, -250, -250, 500, 500);
         
         const image = this.bacterieImages[this.bacteriaLevel - 1];
         if (image && image.complete) {
-            ctx.translate(this.bacteriaXOffset, this.bacteriaYOffset);  // Offset uniquement pour la bactérie
+            ctx.translate(this.bacteriaXOffset, this.bacteriaYOffset);
             const scale = 0.6;
             ctx.scale(scale, scale);
             ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
@@ -694,7 +716,7 @@ export class Chapter1 {
         ctx.globalAlpha = 1.0;
     }
 
-    // --- SYSTEME DE TUTORIEL DYNAMIQUE (LA CORRECTION) ---
+    // --- SYSTEME DE TUTORIEL DYNAMIQUE ---
 
     startTutorial() {
         this.tutorialActive = true;
@@ -719,14 +741,12 @@ export class Chapter1 {
 
         const step = this.tutorialSteps[stepIndex];
         
-        // 1. Textes
         if (this.tutorialElements.title) this.tutorialElements.title.textContent = step.title;
         if (this.tutorialElements.content) this.tutorialElements.content.innerHTML = step.content;
         if (this.tutorialElements.nextBtn) {
             this.tutorialElements.nextBtn.textContent = stepIndex === this.tutorialSteps.length - 1 ? 'COMMENCER' : 'SUIVANT';
         }
 
-        // 2. Positionnement Dynamique (getBoundingClientRect)
         const highlight = this.tutorialElements.highlight;
         const bubble = this.tutorialElements.bubble;
         const arrow = this.tutorialElements.arrow;
@@ -737,7 +757,7 @@ export class Chapter1 {
             const centerX = width / 2 + 50 + this.bacteriaXOffset;
             const centerY = height / 2 + 70 + this.bacteriaYOffset;
             const image = this.bacterieImages[this.bacteriaLevel - 1];
-            let size = 140; // Valeur par défaut si image non chargée
+            let size = 140; 
             if (image && image.complete) {
                 const scale = 0.6;
                 size = image.naturalWidth * scale;
@@ -763,7 +783,6 @@ export class Chapter1 {
             highlight.style.display = 'none';
         }
 
-        // 3. Bulle
         bubble.className = 'ch1-tutorial-bubble'; 
         arrow.style = '';
         bubble.style.transform = 'none';
@@ -787,7 +806,6 @@ export class Chapter1 {
                 arrow.style.top = '-6px'; arrow.style.left = '50%'; arrow.style.transform = 'translate(-50%, 0) rotate(135deg)';
             }
             
-            // Sécurité mobile
             if (parseInt(bubble.style.left) + 300 > window.innerWidth) {
                  bubble.style.left = 'auto'; bubble.style.right = '10px';
             }
