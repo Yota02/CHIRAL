@@ -1,7 +1,6 @@
 /**
- * CHAPTER 2: LA BRÈCHE - STYLES
- *
- * Platformer UI avec dash meter et système de tutoriel
+ * CHAPTER 2: L'INVISIBLE - STYLES
+ * Platformer - Evasion du laboratoire
  */
 
 /* ============================================
@@ -40,27 +39,38 @@
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 5px;
-    color: #44ffff;
-    text-shadow: 0 0 10px rgba(68, 255, 255, 0.5);
+    color: #b944ff;
+    text-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
     letter-spacing: 2px;
 }
 
 .ch2-dash-bar {
     width: 200px;
     height: 20px;
-    background-color: rgba(30, 30, 30, 0.8);
-    border: 2px solid #44ffff;
+    background-color: rgba(20, 10, 30, 0.8);
+    border: 2px solid #b944ff;
     border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 0 15px rgba(68, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(185, 68, 255, 0.3);
 }
 
 .ch2-dash-fill {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, #44ffff, #00cccc);
+    background: linear-gradient(90deg, #b944ff, #8822cc);
     transition: width 0.1s linear;
-    box-shadow: 0 0 10px rgba(68, 255, 255, 0.8);
+    box-shadow: 0 0 10px rgba(185, 68, 255, 0.8);
+}
+
+#ch2-dash-status {
+    margin-top: 5px;
+    font-size: 12px;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 0 0 5px rgba(185, 68, 255, 0.5);
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: color 0.1s ease;
 }
 
 /* ============================================
@@ -73,7 +83,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.75);
     z-index: 100;
     pointer-events: none;
     opacity: 0;
@@ -87,24 +97,14 @@
     opacity: 1;
 }
 
-.ch2-tutorial-highlight {
-    position: absolute;
-    border: 3px solid #b944ff;
-    box-shadow: 0 0 20px rgba(185, 68, 255, 0.8), inset 0 0 20px rgba(185, 68, 255, 0.3);
-    pointer-events: none;
-    z-index: 101;
-    display: none;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .ch2-tutorial-bubble {
     position: absolute;
-    background: linear-gradient(135deg, rgba(10, 10, 20, 0.98), rgba(40, 40, 60, 0.98));
+    background: linear-gradient(135deg, rgba(8, 5, 15, 0.98), rgba(30, 20, 50, 0.98));
     border: 2px solid #b944ff;
     border-radius: 16px;
     padding: 28px;
     max-width: 420px;
-    box-shadow: 0 12px 40px rgba(185, 68, 255, 0.6), 0 0 30px rgba(185, 68, 255, 0.4);
+    box-shadow: 0 12px 40px rgba(185, 68, 255, 0.5), 0 0 30px rgba(185, 68, 255, 0.3);
     backdrop-filter: blur(10px);
     z-index: 102;
     opacity: 0;
@@ -115,17 +115,7 @@
 
 .ch2-tutorial-bubble.visible {
     opacity: 1;
-    transform: scale(1);
-}
-
-.ch2-tutorial-arrow {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: linear-gradient(135deg, rgba(30, 30, 45, 0.98), rgba(20, 20, 30, 0.98));
-    border: 2px solid #b944ff;
-    transform: rotate(45deg);
-    box-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .ch2-tutorial-header {
@@ -149,17 +139,6 @@
     line-height: 1.6;
     color: #eeeeee;
     margin-bottom: 20px;
-}
-
-.ch2-tutorial-content strong {
-    color: #44ffff;
-    font-weight: bold;
-    text-shadow: 0 0 5px rgba(68, 255, 255, 0.5);
-}
-
-.ch2-tutorial-content em {
-    color: #b944ff;
-    font-style: italic;
 }
 
 .ch2-tutorial-controls {
@@ -193,7 +172,6 @@
     background: rgba(40, 40, 40, 0.8);
     color: #cccccc;
     border-color: #888888;
-    box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
 }
 
 .ch2-tutorial-next {
@@ -201,18 +179,13 @@
     color: #ffffff;
     border-color: #b944ff;
     box-shadow: 0 0 15px rgba(185, 68, 255, 0.4);
+    animation: ch2BtnPulse 2s ease-in-out infinite;
 }
 
 .ch2-tutorial-next:hover {
     background: linear-gradient(135deg, rgba(185, 68, 255, 0.6), rgba(185, 68, 255, 0.8));
-    color: #ffffff;
     box-shadow: 0 0 25px rgba(185, 68, 255, 0.8);
-    transform: translateY(-3px) scale(1.05);
-}
-
-.ch2-tutorial-next:active,
-.ch2-tutorial-skip:active {
-    transform: translateY(0);
+    transform: translateY(-2px);
 }
 
 /* Progress Dots */
@@ -239,48 +212,16 @@
 }
 
 /* ============================================
-   ANIMATIONS & EFFECTS
+   ANIMATIONS
    ============================================ */
 
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
-
-@keyframes glow {
-    0%, 100% {
-        box-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(185, 68, 255, 0.8);
-    }
-}
-
-/* Dash bar animation when full */
-.ch2-dash-fill[style*="width: 100%"] {
-    animation: glow 1s ease-in-out infinite;
-}
-
-/* Continue button pulse effect */
-@keyframes buttonPulse {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(185, 68, 255, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 25px rgba(185, 68, 255, 0.7);
-    }
-}
-
-.ch2-tutorial-next {
-    animation: buttonPulse 2s ease-in-out infinite;
+@keyframes ch2BtnPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(185, 68, 255, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(185, 68, 255, 0.7); }
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   RESPONSIVE
    ============================================ */
 
 @media (max-width: 768px) {
@@ -288,30 +229,23 @@
         bottom: 20px;
         left: 20px;
     }
-
     .ch2-dash-bar {
         width: 150px;
         height: 16px;
     }
-
     .ch2-dash-label {
         font-size: 12px;
     }
-
     .ch2-tutorial-bubble {
         max-width: 90%;
-        left: 5% !important;
         padding: 20px;
     }
-
     .ch2-tutorial-title {
         font-size: 18px;
     }
-
     .ch2-tutorial-content {
         font-size: 13px;
     }
-
     .ch2-tutorial-btn {
         padding: 8px 16px;
         font-size: 12px;
@@ -327,7 +261,6 @@
     outline-offset: 2px;
 }
 
-/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
     .ch2-tutorial-overlay,
     .ch2-tutorial-bubble,

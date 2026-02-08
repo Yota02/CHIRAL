@@ -14,7 +14,7 @@
 
 import { Chapter1 } from './chapters/chapter1/chapter1.js';
 import { Chapter2 } from './chapters/chapter2/chapter2.js';
-import { Chapter3 } from './chapters/chapter3.js';
+import { Chapter3 } from './chapters/chapter3/chapter3.js';
 import { Chapter4 } from './chapters/chapter4.js';
 import { Chapter5 } from './chapters/chapter5.js';
 
@@ -187,7 +187,7 @@ class Game {
     startGame() {
         this.titleScreen.classList.remove('active');
         this.titleScreen.classList.add('hidden');
-        this.startChapter(1);  // Démarrer au chapitre 2 pour test (index 1)
+        this.startChapter(2);  // Démarrer au chapitre 3 (index 2)
     }
 
     startChapter(chapterIndex) {

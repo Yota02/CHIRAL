@@ -48,16 +48,9 @@ Le code doit être modulaire pour faciliter l'ajout des chapitres.
 ### Chapitre 2 : L'Invisible (Action/Observation)
 jeux de platforme en 2d ou on joue une bactérie qui essaye de s'echapper d'un laboratoire. Le joueur doit éviter les zones de lumière (représentant les systèmes de stérilisation) et se cacher dans l'ombre pour survivre. La bactérie peut se faufiler à travers des conduits d'aération et des fissures, mais doit éviter les pièges et les robots de nettoyage. Pour finir par arriver dans une flaque d'eau à l'extérieur, où elle peut se multiplier et contaminer l'environnement.
 
-### Chapitre 3 : La Grande Mutation (Simulation)
-* **Contexte :** L'écosystème mondial est remplacé.
-* **Mécanique :** Clicker / Gestion de territoire.
-* **Gameplay :**
-    * Une grille ou une carte simplifiée.
-    * La zone Violette s'étend automatiquement (taux de croissance exponentiel).
-    * Le joueur clique pour "Planter" ou "Sauver" des zones Vertes.
-    * Chaque action du joueur ralentit à peine la progression. La zone Violette étouffe la Verte (compétition pour l'espace).
-    * Fin inévitable quand la carte est à 90% violette.
-* **Message de fin :** "Biomasse terrestre : 12%. Remplacement irréversible."
+### Chapitre 3 : La Mutation 
+* **Contexte :** 
+Ce jeux se place sur une carte vue du dessus (top-down) représentant la flaque d'eau à l'extérieur du laboratoire. Elle doit être grande mais limité dans l'espace (ex: 8000x8000 pixels). On doit avoir une vue sur l'amas de bactérie qu'on controlle grace a la souris et en ce deplacant dans la flaque. On commence avec une bactérie se trouvant maintenant dans la flaque et essaye de survivre et de se multiplier. Pour cela elle est en compétition avec des bactéries normales (vertes) pour les ressources (nourriture). Toute les 20 s le nombre de bactérie est doublé par 2 et donc les besoins en nourriture sont doublé si le nombre de nouriture n'est pas suffisant alors on supprime toute les bactérie qui ne peuvent être nourie. Le joueur doit gérer la croissance de sa population tout en évitant l'extinction du au manque de nourriture. Il y a des points qui apparaisse aléatoirement sur la map et qu'on doit récupéré pour amélioré notre population. Une fois que la population a atteind une population de 30000 une des bactérie mute (devient rouge). Et c'est ainsi que le chapitre 3 se termine avec un gros zoom sur la bactérie rouge qui représente la menace ultime. 
 
 ### Chapitre 4 : La Forteresse (Rythme/Gestion)
 * **Contexte :** Survivre dans un dôme en convertissant la matière miroir en nourriture comestible.

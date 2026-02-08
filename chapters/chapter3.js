@@ -103,8 +103,8 @@ export class Chapter3 {
         for (const seed of normalSeeds) {
             if (this.isValidCell(seed.x, seed.y)) {
                 this.grid[seed.y][seed.x].state = 'normal';
-                // Etendre un peu autour
-                this.spreadNormal(seed.x, seed.y, 2);
+                // Etendre considérablement autour
+                this.spreadNormal(seed.x, seed.y, 4);
             }
         }
 

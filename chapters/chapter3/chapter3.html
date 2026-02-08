@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <template id="chapter3-template">
+        <!-- UI Container for Chapter 3 -->
+        <div id="ch3-ui" class="hidden" style="opacity: 0;">
+
+            <!-- HUD Top Left: Population & Food -->
+            <div id="ch3-hud-left">
+                <div class="ch3-stat">
+                    <div class="ch3-stat-label">POPULATION</div>
+                    <div class="ch3-stat-row">
+                        <span id="ch3-pop-count" class="ch3-stat-value">1</span>
+                        <span class="ch3-stat-target">/ 30 000</span>
+                    </div>
+                    <div class="ch3-bar-container">
+                        <div id="ch3-pop-bar" class="ch3-bar ch3-bar-pop"></div>
+                    </div>
+                </div>
+                <div class="ch3-stat">
+                    <div class="ch3-stat-label">NOURRITURE</div>
+                    <div class="ch3-stat-row">
+                        <span id="ch3-food-count" class="ch3-stat-value">0</span>
+                    </div>
+                    <div class="ch3-bar-container">
+                        <div id="ch3-food-bar" class="ch3-bar ch3-bar-food"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HUD Top Right: Timer, Power-ups & Bonuses -->
+            <div id="ch3-hud-right">
+                <div class="ch3-timer-box">
+                    <div class="ch3-stat-label">DIVISION</div>
+                    <div id="ch3-timer-value" class="ch3-timer-value">20s</div>
+                </div>
+                <div id="ch3-powerups" class="ch3-powerups"></div>
+                <div class="ch3-bonuses-section">
+                    <div class="ch3-stat-label">AMELIORATIONS</div>
+                    <div id="ch3-bonuses" class="ch3-bonuses"></div>
+                </div>
+            </div>
+
+            <!-- Warning Center -->
+            <div id="ch3-warning" class="ch3-warning hidden">
+                DIVISION IMMINENTE
+            </div>
+
+            <!-- Minimap Bottom Right -->
+            <div id="ch3-minimap-container">
+                <canvas id="ch3-minimap" width="150" height="150"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Tutorial Overlay -->
+        <div id="ch3-tutorial-overlay" class="ch3-tutorial-overlay">
+            <div id="ch3-tutorial-bubble" class="ch3-tutorial-bubble">
+                <div class="ch3-tutorial-header">
+                    <h3 id="ch3-tutorial-title" class="ch3-tutorial-title"></h3>
+                </div>
+                <div id="ch3-tutorial-content" class="ch3-tutorial-content"></div>
+                <div class="ch3-tutorial-controls">
+                    <button id="ch3-tutorial-skip" class="ch3-tutorial-btn ch3-tutorial-skip">PASSER</button>
+                    <button id="ch3-tutorial-next" class="ch3-tutorial-btn ch3-tutorial-next">CONTINUER</button>
+                </div>
+                <div id="ch3-tutorial-progress" class="ch3-tutorial-progress"></div>
+            </div>
+        </div>
+
+    </template>
+</body>
+</html>

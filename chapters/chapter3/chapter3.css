@@ -1,0 +1,509 @@
+/**
+ * CHAPTER 3: LA MUTATION - STYLES
+ * Top-Down Survival - Flaque d'eau
+ */
+
+/* ============================================
+   MAIN UI CONTAINER
+   ============================================ */
+
+#ch3-ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 0.3s ease;
+}
+
+#ch3-ui.hidden {
+    display: none !important;
+}
+
+/* ============================================
+   HUD - TOP LEFT (Population & Food)
+   ============================================ */
+
+#ch3-hud-left {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ch3-stat {
+    font-family: 'Courier New', monospace;
+}
+
+.ch3-stat-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #b944ff;
+    text-shadow: 0 0 8px rgba(185, 68, 255, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
+.ch3-stat-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.ch3-stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.ch3-stat-target {
+    font-size: 12px;
+    color: #999999;
+}
+
+.ch3-bar-container {
+    width: 180px;
+    height: 8px;
+    background-color: rgba(20, 10, 30, 0.8);
+    border: 1px solid rgba(185, 68, 255, 0.4);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ch3-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.ch3-bar-pop {
+    background: linear-gradient(90deg, #b944ff, #d070ff);
+    box-shadow: 0 0 6px rgba(185, 68, 255, 0.6);
+}
+
+.ch3-bar-food {
+    background: linear-gradient(90deg, #88cc44, #bbff44);
+    box-shadow: 0 0 6px rgba(136, 204, 68, 0.6);
+}
+
+/* ============================================
+   HUD - TOP RIGHT (Timer & Power-ups)
+   ============================================ */
+
+#ch3-hud-right {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.ch3-timer-box {
+    font-family: 'Courier New', monospace;
+    text-align: right;
+}
+
+.ch3-timer-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    transition: color 0.3s ease;
+}
+
+.ch3-timer-value.ch3-timer-warning {
+    color: #ff4444;
+    text-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+    animation: ch3TimerPulse 0.5s ease-in-out infinite;
+}
+
+.ch3-powerups {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.ch3-powerup-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.ch3-powerup-icon::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    transform-origin: bottom;
+    transition: transform 0.2s linear;
+}
+
+.ch3-powerup-speed {
+    border-color: #44ffff;
+    background: rgba(68, 255, 255, 0.2);
+}
+
+.ch3-powerup-efficiency {
+    border-color: #ffcc44;
+    background: rgba(255, 204, 68, 0.2);
+}
+
+.ch3-powerup-magnet {
+    border-color: #ff8844;
+    background: rgba(255, 136, 68, 0.2);
+}
+
+.ch3-powerup-shield {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   ORB BONUSES PANEL
+   ============================================ */
+
+.ch3-bonuses-section {
+    margin-top: 4px;
+}
+
+.ch3-bonuses {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+}
+
+.ch3-bonus-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 1px solid;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.ch3-bonus-abbr {
+    opacity: 0.7;
+    font-size: 10px;
+}
+
+.ch3-bonus-val {
+    font-size: 12px;
+}
+
+/* ============================================
+   WARNING CENTER
+   ============================================ */
+
+.ch3-warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Courier New', monospace;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff4444;
+    text-shadow: 0 0 20px rgba(255, 68, 68, 0.8), 0 0 40px rgba(255, 68, 68, 0.4);
+    letter-spacing: 4px;
+    animation: ch3WarningBlink 0.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.ch3-warning.hidden {
+    display: none !important;
+}
+
+/* ============================================
+   MINIMAP
+   ============================================ */
+
+#ch3-minimap-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border: 2px solid rgba(185, 68, 255, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(185, 68, 255, 0.2);
+}
+
+#ch3-minimap {
+    display: block;
+}
+
+/* ============================================
+   TUTORIAL SYSTEM
+   ============================================ */
+
+.ch3-tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: none;
+}
+
+.ch3-tutorial-overlay.active {
+    display: block;
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.ch3-tutorial-bubble {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: linear-gradient(135deg, rgba(8, 5, 15, 0.98), rgba(30, 20, 50, 0.98));
+    border: 2px solid #b944ff;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 420px;
+    box-shadow: 0 12px 40px rgba(185, 68, 255, 0.5), 0 0 30px rgba(185, 68, 255, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 102;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+
+.ch3-tutorial-bubble.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.ch3-tutorial-header {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(185, 68, 255, 0.3);
+}
+
+.ch3-tutorial-title {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    color: #b944ff;
+    text-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
+    letter-spacing: 1px;
+}
+
+.ch3-tutorial-content {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #eeeeee;
+    margin-bottom: 20px;
+}
+
+.ch3-tutorial-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.ch3-tutorial-btn {
+    flex: 1;
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    border: 2px solid;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.ch3-tutorial-skip {
+    background: rgba(30, 30, 30, 0.6);
+    color: #999999;
+    border-color: #666666;
+}
+
+.ch3-tutorial-skip:hover {
+    background: rgba(40, 40, 40, 0.8);
+    color: #cccccc;
+    border-color: #888888;
+}
+
+.ch3-tutorial-next {
+    background: linear-gradient(135deg, rgba(185, 68, 255, 0.3), rgba(185, 68, 255, 0.6));
+    color: #ffffff;
+    border-color: #b944ff;
+    box-shadow: 0 0 15px rgba(185, 68, 255, 0.4);
+    animation: ch3BtnPulse 2s ease-in-out infinite;
+}
+
+.ch3-tutorial-next:hover {
+    background: linear-gradient(135deg, rgba(185, 68, 255, 0.6), rgba(185, 68, 255, 0.8));
+    box-shadow: 0 0 25px rgba(185, 68, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.ch3-tutorial-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.ch3-tutorial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(185, 68, 255, 0.3);
+    border: 1px solid rgba(185, 68, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.ch3-tutorial-dot.active {
+    background-color: #b944ff;
+    box-shadow: 0 0 10px rgba(185, 68, 255, 0.8);
+    transform: scale(1.3);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes ch3WarningBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+@keyframes ch3TimerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes ch3BtnPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(185, 68, 255, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(185, 68, 255, 0.7); }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    #ch3-hud-left {
+        top: 10px;
+        left: 10px;
+    }
+
+    #ch3-hud-right {
+        top: 10px;
+        right: 10px;
+    }
+
+    .ch3-stat-value {
+        font-size: 16px;
+    }
+
+    .ch3-timer-value {
+        font-size: 22px;
+    }
+
+    .ch3-bar-container {
+        width: 130px;
+    }
+
+    .ch3-warning {
+        font-size: 20px;
+    }
+
+    .ch3-bonus-item {
+        padding: 2px 6px;
+        font-size: 10px;
+    }
+
+    .ch3-bonus-val {
+        font-size: 10px;
+    }
+
+    #ch3-minimap-container {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    #ch3-minimap {
+        width: 100px;
+        height: 100px;
+    }
+
+    .ch3-tutorial-bubble {
+        max-width: 90%;
+        padding: 20px;
+    }
+
+    .ch3-tutorial-title {
+        font-size: 18px;
+    }
+
+    .ch3-tutorial-content {
+        font-size: 13px;
+    }
+
+    .ch3-tutorial-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.ch3-tutorial-btn:focus {
+    outline: 2px solid #b944ff;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ch3-tutorial-overlay,
+    .ch3-tutorial-bubble,
+    .ch3-tutorial-dot,
+    .ch3-warning,
+    .ch3-timer-value,
+    .ch3-bar {
+        transition: none;
+        animation: none;
+    }
+}

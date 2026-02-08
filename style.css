@@ -259,9 +259,62 @@ h1.glitch::before {
     100% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 0); }
 }
 
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+/* ===========================================
+    DIALOGUE SYSTEM
+    =========================================== */
+
+#dialogue-box {
+    display: none;
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid var(--neon-cyan);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 600px;
+    text-align: center;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+#dialogue-box.active {
+    display: block;
+}
+
+#dialogue-text {
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    color: var(--text-white);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    min-height: 3em; /* Pour éviter les sauts */
+}
+
+.terminal-button {
+    background: transparent;
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.terminal-button:hover {
+    background: var(--neon-cyan);
+    color: #000;
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.terminal-button.hidden {
+    display: none;
 }
 
 /* Assurer que l'UI du chapitre 1 est visible */
