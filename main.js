@@ -187,7 +187,7 @@ class Game {
     startGame() {
         this.titleScreen.classList.remove('active');
         this.titleScreen.classList.add('hidden');
-        this.startChapter(2);  // Démarrer au chapitre 3 (index 2)
+        this.startChapter(0);  // Démarrer au chapitre 1 (index 0)
     }
 
     startChapter(chapterIndex) {
