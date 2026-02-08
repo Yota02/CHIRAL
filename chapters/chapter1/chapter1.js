@@ -15,6 +15,7 @@ export class Chapter1 {
         this.moleculesForMed = 0;
         this.totalUpgrades = 0;
         this.bacteriaLevel = 1;
+        this.journalDisplayed = false;
 
         // Configuration
         this.decayRate = 2.0;
@@ -94,12 +95,16 @@ export class Chapter1 {
         this.pillElements = [];
         this.beakerMoleculeElements = [];
 
-        // Tracking
+        // Tracking (dirty flags)
         this._lastMoney = -1;
         this._lastTotalProduced = -1;
         this._lastMoleculesForMed = -1;
         this._lastMedCount = -1;
         this._lastMoleculeThreshold = -1;
+        this._upgradesDirty = true;
+        this._cachedBeakerRect = null;
+        this._cachedPillsRect = null;
+        this._rectCacheTime = 0;
 
         // --- SYSTEME DE TUTORIEL CONFIGURATION ---
         this.tutorialActive = false;
@@ -285,9 +290,12 @@ export class Chapter1 {
             this._lastTotalProduced = Math.floor(this.totalProduced);
             if (this.domElements.totalMolecules) this.domElements.totalMolecules.textContent = this._lastTotalProduced;
         }
-        // Mirror mode
-        if (this.domElements.statLine) this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
-        
+        // Mirror mode (seulement quand ça change)
+        if (this._lastMirrorMode !== this.mirrorMode) {
+            this._lastMirrorMode = this.mirrorMode;
+            if (this.domElements.statLine) this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
+        }
+
         // Progress
         if (this._lastMoleculesForMed !== this.moleculesForMed) {
             this._lastMoleculesForMed = this.moleculesForMed;
@@ -314,24 +322,30 @@ export class Chapter1 {
         if (!container) return;
         const targetCount = Math.min(this.medications.length, 18);
 
-        while (this.pillElements.length < targetCount) {
-            const pill = document.createElement('div');
-            pill.className = 'ch1-pill';
-            pill.innerHTML = `<div class="ch1-pill-left"></div><div class="ch1-pill-right"></div>`;
-            container.appendChild(pill);
-            this.pillElements.push(pill);
-        }
-        while (this.pillElements.length > targetCount) {
-            this.pillElements.pop().remove();
+        // Ajuster le nombre de pilules DOM seulement si nécessaire
+        if (this.pillElements.length !== targetCount) {
+            while (this.pillElements.length < targetCount) {
+                const pill = document.createElement('div');
+                pill.className = 'ch1-pill';
+                pill.innerHTML = '<div class="ch1-pill-left"></div><div class="ch1-pill-right"></div>';
+                container.appendChild(pill);
+                this.pillElements.push(pill);
+            }
+            while (this.pillElements.length > targetCount) {
+                this.pillElements.pop().remove();
+            }
         }
 
+        // Mise à jour de l'opacité
         const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
-        this.pillElements.forEach((pill, index) => {
-            if (this.medications[index]) {
-                if (this.mirrorMode || hasImmortality) pill.style.opacity = 1.0;
-                else pill.style.opacity = Math.max(0.2, this.medications[index].life / this.medicationDuration);
+        const fullOpacity = this.mirrorMode || hasImmortality;
+        for (let i = 0; i < this.pillElements.length; i++) {
+            const med = this.medications[i];
+            if (med) {
+                const opacity = fullOpacity ? 1.0 : Math.max(0.2, med.life / this.medicationDuration);
+                this.pillElements[i].style.opacity = opacity;
             }
-        });
+        }
     }
 
     updateBeakerDisplay() {
@@ -344,12 +358,11 @@ export class Chapter1 {
     updateBeakerMolecules(fillPercent) {
         if (!this.domElements.beakerMolecules) return;
         const targetMolecules = Math.floor(fillPercent / 20);
+        if (targetMolecules === this.beakerMoleculeElements.length) return;
         while (this.beakerMoleculeElements.length < targetMolecules) {
             const molecule = document.createElement('div');
             molecule.className = 'ch1-beaker-molecule';
-            molecule.style.left = `${10 + Math.random() * 60}%`;
-            molecule.style.bottom = `${5 + Math.random() * (fillPercent * 0.6)}%`;
-            molecule.style.animationDelay = `${Math.random() * 2}s`;
+            molecule.style.cssText = `left:${10 + Math.random() * 60}%;bottom:${5 + Math.random() * (fillPercent * 0.6)}%;animation-delay:${Math.random() * 2}s`;
             this.domElements.beakerMolecules.appendChild(molecule);
             this.beakerMoleculeElements.push(molecule);
         }
@@ -368,10 +381,18 @@ export class Chapter1 {
 
     spawnFlyingMedication() {
         if (!this.domElements.flyingMeds || !this.domElements.pillsContainer || !this.domElements.beaker) return;
-        
-        const beakerRect = this.domElements.beaker.getBoundingClientRect();
-        const pillsRect = this.domElements.pillsContainer.getBoundingClientRect();
-        
+
+        // Cache les rects pendant 500ms pour éviter les reflows répétés
+        const now = performance.now();
+        if (!this._cachedBeakerRect || now - this._rectCacheTime > 500) {
+            this._cachedBeakerRect = this.domElements.beaker.getBoundingClientRect();
+            this._cachedPillsRect = this.domElements.pillsContainer.getBoundingClientRect();
+            this._rectCacheTime = now;
+        }
+
+        const beakerRect = this._cachedBeakerRect;
+        const pillsRect = this._cachedPillsRect;
+
         const startX = beakerRect.left + beakerRect.width / 2;
         const startY = beakerRect.top + beakerRect.height / 2;
         const endX = pillsRect.left + pillsRect.width / 2;
@@ -402,58 +423,62 @@ export class Chapter1 {
     }
 
     updateUpgradesDisplay() {
-        this.upgrades.forEach((upgrade, index) => {
+        // Ne recalculer que si l'argent ou un upgrade a changé
+        const moneyFloor = Math.floor(this.money);
+        if (!this._upgradesDirty && this._lastMoneyForUpgrades === moneyFloor) return;
+        this._lastMoneyForUpgrades = moneyFloor;
+        this._upgradesDirty = false;
+
+        for (let index = 0; index < this.upgrades.length; index++) {
+            const upgrade = this.upgrades[index];
             const dom = this.domElements.upgrades[index];
-            if (!dom || !dom.element) return;
+            if (!dom || !dom.element) continue;
 
             if (upgrade.hidden) {
                 dom.element.style.display = 'none';
-                return;
+                continue;
             } else {
                 dom.element.style.display = 'block';
             }
 
-            const canBuy = this.money >= upgrade.cost && upgrade.level < upgrade.maxLevel;
             const isMaxed = upgrade.level >= upgrade.maxLevel;
+            const canBuy = moneyFloor >= upgrade.cost && !isMaxed;
 
-            dom.element.classList.toggle('ch1-can-buy', canBuy && !isMaxed);
+            dom.element.classList.toggle('ch1-can-buy', canBuy);
             dom.element.classList.toggle('ch1-maxed', isMaxed);
             if (dom.level) dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
             if (dom.cost) dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
-        });
+        }
     }
 
     // --- UPDATE LOOP ---
     update(deltaTime) {
-        const { width, height } = this.game.getCanvasSize();
+        if (this.journalDisplayed) return;
 
-        // Reveal hidden upgrade
-        if (this.totalProduced >= 10000 && this.upgrades[4].hidden) {
+        const w = this.game.canvas.width;
+        const h = this.game.canvas.height;
+
+        // Reveal hidden upgrade (une seule fois)
+        if (this.upgrades[4].hidden && this.totalProduced >= 10000) {
             this.upgrades[4].hidden = false;
+            this._upgradesDirty = true;
         }
 
-        // --- CORRECTION APPLIQUÉE ICI : Auto generation ---
-        // Utilisation du temps cumulé pour gérer les hautes vitesses de production
+        // Auto generation - temps cumulé pour hautes vitesses
         this.moleculeTimer += deltaTime;
         const timePerMolecule = 1.0 / this.moleculeRate;
 
-        // Si on a assez de temps pour produire une ou plusieurs molécules
         if (this.moleculeTimer >= timePerMolecule) {
-            
-            // On calcule combien de molécules on doit produire dans ce laps de temps
             const numToProduce = Math.floor(this.moleculeTimer / timePerMolecule);
-            
-            // Mise à jour des stocks
+
             this.molecules += numToProduce;
             this.totalProduced += numToProduce;
             this.moleculesForMed += numToProduce;
-
-            // On retire le temps consommé (et on garde le surplus pour la prochaine frame pour être précis)
             this.moleculeTimer -= (numToProduce * timePerMolecule);
 
-            // Effets Visuels : On limite à 1 particule par frame pour ne pas surcharger
-            const centerX = width / 2 + 50;
-            const centerY = height / 2 + 70;
+            // Effets Visuels : 1 particule par frame max
+            const centerX = w / 2 + 50;
+            const centerY = h / 2 + 70;
             const angle = Math.random() * Math.PI * 2;
             const radius = Math.random() * 140;
             
@@ -477,11 +502,11 @@ export class Chapter1 {
         }
         // --- FIN DE LA CORRECTION ---
 
-        // Click Input
-        const mouse = this.game.getMouse();
+        // Click Input - accès direct pour éviter la copie d'objet
+        const mouse = this.game.mouse;
         if (mouse.clicked) {
-            const centerX = width / 2 + 50;
-            const centerY = height / 2 + 70;
+            const centerX = w / 2 + 50;
+            const centerY = h / 2 + 70;
             if (this.dist(mouse.x, mouse.y, centerX, centerY) < 100) {
                 this.molecules += 1;
                 this.totalProduced += 1;
@@ -500,12 +525,16 @@ export class Chapter1 {
         // Logic
         this.updateParticles(deltaTime);
         const hasImmortality = this.upgrades[4].level > 0;
-        for (let i = this.medications.length - 1; i >= 0; i--) {
-            let med = this.medications[i];
-            this.money += deltaTime;
-            if (!this.mirrorMode && !hasImmortality) {
-                med.life -= deltaTime;
-                if (med.life <= 0) this.medications.splice(i, 1);
+        const medCount = this.medications.length;
+        this.money += deltaTime * medCount;
+        if (!this.mirrorMode && !hasImmortality) {
+            let i = this.medications.length;
+            while (i--) {
+                this.medications[i].life -= deltaTime;
+                if (this.medications[i].life <= 0) {
+                    this.medications[i] = this.medications[this.medications.length - 1];
+                    this.medications.pop();
+                }
             }
         }
 
@@ -513,18 +542,20 @@ export class Chapter1 {
     }
 
     checkMedicationCreation() {
-        // Boucle pour créer autant de médicaments que possible si on a beaucoup de molécules
+        let created = 0;
         while (this.moleculesForMed >= this.moleculeThreshold && this.molecules >= this.moleculeThreshold) {
             this.moleculesForMed -= this.moleculeThreshold;
             this.molecules -= this.moleculeThreshold;
             this.spawnMedication();
-            const { width, height } = this.game.getCanvasSize();
-            // Effet visuel seulement si c'est raisonnable (pour éviter spam visuel si production massive)
-            if (this.medications.length < 200) { 
-                this.spawnParticle(80, height - 200, `-${this.moleculeThreshold}`, "#ff4444");
-                this.triggerBeakerEmptyAnimation();
-                this.spawnFlyingMedication();
-            }
+            created++;
+        }
+        // Effet visuel groupé : max 1 animation par frame
+        if (created > 0 && this.medications.length < 200) {
+            const h = this.game.canvas.height;
+            const label = created > 1 ? `-${this.moleculeThreshold * created}` : `-${this.moleculeThreshold}`;
+            this.spawnParticle(80, h - 200, label, "#ff4444");
+            this.triggerBeakerEmptyAnimation();
+            this.spawnFlyingMedication();
         }
     }
 
@@ -540,6 +571,7 @@ export class Chapter1 {
         upgrade.level++;
         upgrade.cost = Math.floor(upgrade.cost * upgrade.costMultiplier);
         this.totalUpgrades++;
+        this._upgradesDirty = true;
         this.updateBacteriaLevel();
         this.recalculateStats();
         this.triggerPipetteAnimation();
@@ -588,6 +620,7 @@ export class Chapter1 {
 
     async triggerJournalDisplay() {
         this.mirrorMode = false;
+        this.journalDisplayed = true;
 
         const overlay = document.createElement('div');
         overlay.id = 'ch1-journal-overlay';
@@ -636,6 +669,7 @@ export class Chapter1 {
         arrowButton.addEventListener('click', () => {
             overlay.remove(); 
             console.log('Journal fermé, démarrage du chapitre 2');
+            this.journalDisplayed = false;
             this.game.startChapter(1); 
         });
 
@@ -664,12 +698,17 @@ export class Chapter1 {
     }
 
     updateParticles(dt) {
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-            let p = this.particles[i];
+        let i = this.particles.length;
+        while (i--) {
+            const p = this.particles[i];
             p.life -= dt;
             p.x += p.vx * dt;
             p.y += p.vy * dt;
-            if (p.life <= 0) this.particles.splice(i, 1);
+            if (p.life <= 0) {
+                // Swap-and-pop : O(1) au lieu de O(n) avec splice
+                this.particles[i] = this.particles[this.particles.length - 1];
+                this.particles.pop();
+            }
         }
     }
 
@@ -677,11 +716,12 @@ export class Chapter1 {
 
     // --- DRAW ---
     draw(ctx) {
-        const { width, height } = this.game.getCanvasSize();
-        if (this.labBackgroundImage.complete) ctx.drawImage(this.labBackgroundImage, 0, 0, width, height);
-        else { ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, width, height); }
+        const w = this.game.canvas.width;
+        const h = this.game.canvas.height;
+        if (this.labBackgroundImage.complete) ctx.drawImage(this.labBackgroundImage, 0, 0, w, h);
+        else { ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, w, h); }
 
-        this.drawBacteria(ctx, width, height);
+        this.drawBacteria(ctx, w, h);
         this.drawParticles(ctx);
     }
 
@@ -701,19 +741,23 @@ export class Chapter1 {
     }
 
     drawParticles(ctx) {
+        const len = this.particles.length;
+        if (len === 0) return;
+        ctx.save();
         ctx.textAlign = 'center';
         ctx.font = 'bold 20px Arial';
-        for (let p of this.particles) {
+        for (let i = 0; i < len; i++) {
+            const p = this.particles[i];
             ctx.globalAlpha = p.life;
             if (p.image && p.image.complete) {
                 const size = 64 * (p.scale || 1.0);
                 ctx.drawImage(p.image, p.x - size / 2, p.y - size / 2, size, size);
-            } else {
+            } else if (p.text) {
                 ctx.fillStyle = p.color;
                 ctx.fillText(p.text, p.x, p.y);
             }
         }
-        ctx.globalAlpha = 1.0;
+        ctx.restore();
     }
 
     // --- SYSTEME DE TUTORIEL DYNAMIQUE ---
