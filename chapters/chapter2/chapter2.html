@@ -2,25 +2,44 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapitre 2</title>
-    <style>
-        body {
-            background-color: white;
-            color: black;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            font-size: 3em;
-        }
-    </style>
 </head>
 <body>
-    <h1>Chapitre 2</h1>
+    <template id="chapter2-template">
+        <!-- UI Container for Chapter 2 -->
+        <div id="ch2-ui" class="hidden" style="opacity: 0;">
+
+            <!-- Dash Meter (affiche le cooldown du dash) -->
+            <div id="ch2-dash-meter">
+                <div class="ch2-dash-label">DASH</div>
+                <div class="ch2-dash-bar">
+                    <div id="ch2-dash-fill" class="ch2-dash-fill"></div>
+                </div>
+            </div>            <!-- Zone de dialogue spécifique au chapitre 2 -->
+            <div id="ch2-dialogue-box" class="ch2-dialogue-box">
+                <p id="ch2-dialogue-text" class="ch2-dialogue-text"></p>
+                <button id="ch2-continue-button" class="terminal-button ch2-continue-button hidden">
+                    <span class="blink">&gt;</span> CONTINUER
+                </button>
+            </div>
+        </div>
+
+        <!-- Tutorial System -->
+        <div id="ch2-tutorial-overlay" class="ch2-tutorial-overlay">
+            <div id="ch2-tutorial-highlight" class="ch2-tutorial-highlight"></div>
+            <div id="ch2-tutorial-bubble" class="ch2-tutorial-bubble">
+                <div class="ch2-tutorial-arrow"></div>
+                <div class="ch2-tutorial-header">
+                    <h3 id="ch2-tutorial-title" class="ch2-tutorial-title"></h3>
+                </div>
+                <div id="ch2-tutorial-content" class="ch2-tutorial-content"></div>
+                <div class="ch2-tutorial-controls">
+                    <button id="ch2-tutorial-skip" class="ch2-tutorial-btn ch2-tutorial-skip">PASSER</button>
+                    <button id="ch2-tutorial-next" class="ch2-tutorial-btn ch2-tutorial-next">CONTINUER</button>
+                </div>
+                <div id="ch2-tutorial-progress" class="ch2-tutorial-progress"></div>
+            </div>
+        </div>
+
+    </template>
 </body>
 </html>

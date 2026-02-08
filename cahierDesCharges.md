@@ -46,15 +46,7 @@ Le code doit être modulaire pour faciliter l'ajout des chapitres.
 * **Message de fin :** "Séquence complétée. Organisme stable. Immunité totale confirmée."
 
 ### Chapitre 2 : L'Invisible (Action/Observation)
-* **Contexte :** Contamination accidentelle dans une goutte d'eau.
-* **Mécanique :** Tir (Point & Click).
-* **Gameplay :**
-    * Vue microscope. Des organismes verts (normaux) et violets (miroirs) bougent.
-    * Outil : "Laser UV" ou "Antibiotique".
-    * Le joueur clique sur les verts -> Ils explosent.
-    * Le joueur clique sur les violets -> **Rien ne se passe** (le tir traverse ou rebondit).
-    * Timer : La population violette augmente jusqu'à saturation de l'écran.
-* **Message de fin :** "Erreur critique. Cible non valide. Confinement brisé."
+jeux de platforme en 2d ou on joue une bactérie qui essaye de s'echapper d'un laboratoire. Le joueur doit éviter les zones de lumière (représentant les systèmes de stérilisation) et se cacher dans l'ombre pour survivre. La bactérie peut se faufiler à travers des conduits d'aération et des fissures, mais doit éviter les pièges et les robots de nettoyage. Pour finir par arriver dans une flaque d'eau à l'extérieur, où elle peut se multiplier et contaminer l'environnement.
 
 ### Chapitre 3 : La Grande Mutation (Simulation)
 * **Contexte :** L'écosystème mondial est remplacé.

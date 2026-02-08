@@ -187,7 +187,7 @@ class Game {
     startGame() {
         this.titleScreen.classList.remove('active');
         this.titleScreen.classList.add('hidden');
-        this.startChapter(0);  // Démarrer toujours depuis le chapitre 0
+        this.startChapter(1);  // Démarrer au chapitre 2 pour test (index 1)
     }
 
     startChapter(chapterIndex) {
@@ -441,6 +441,10 @@ class Game {
 
     getKeys() {
         return { ...this.keys };
+    }
+
+    getTime() {
+        return this.lastTime / 1000;
     }
 }
 

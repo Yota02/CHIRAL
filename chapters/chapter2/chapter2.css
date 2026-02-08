@@ -1,85 +1,339 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #111111;
-    font-family: 'Courier New', monospace;
-    color: #eeeeee;
-    overflow: hidden;
-}
+/**
+ * CHAPTER 2: LA BRÈCHE - STYLES
+ *
+ * Platformer UI avec dash meter et système de tutoriel
+ */
 
-#game-canvas {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
+/* ============================================
+   MAIN UI CONTAINER
+   ============================================ */
 
-#ui-overlay {
-    position: absolute;
+#ch2-ui {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 10;
+    z-index: 5;
+    transition: opacity 0.3s ease;
 }
 
-#instructions {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    color: #44ffff;
-    text-align: center;
+#ch2-ui.hidden {
+    display: none !important;
 }
 
-#counters {
+/* ============================================
+   DASH METER (HUD)
+   ============================================ */
+
+#ch2-dash-meter {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    bottom: 30px;
+    left: 30px;
+    pointer-events: auto;
+    font-family: 'Courier New', monospace;
+    color: #eeeeee;
+}
+
+.ch2-dash-label {
     font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #44ffff;
+    text-shadow: 0 0 10px rgba(68, 255, 255, 0.5);
+    letter-spacing: 2px;
 }
 
-#normal-counter {
-    color: #44ff88;
+.ch2-dash-bar {
+    width: 200px;
+    height: 20px;
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 2px solid #44ffff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(68, 255, 255, 0.3);
 }
 
-#mirror-counter {
+.ch2-dash-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #44ffff, #00cccc);
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(68, 255, 255, 0.8);
+}
+
+/* ============================================
+   TUTORIAL SYSTEM
+   ============================================ */
+
+.ch2-tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: none;
+}
+
+.ch2-tutorial-overlay.active {
+    display: block;
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.ch2-tutorial-highlight {
+    position: absolute;
+    border: 3px solid #b944ff;
+    box-shadow: 0 0 20px rgba(185, 68, 255, 0.8), inset 0 0 20px rgba(185, 68, 255, 0.3);
+    pointer-events: none;
+    z-index: 101;
+    display: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ch2-tutorial-bubble {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(10, 10, 20, 0.98), rgba(40, 40, 60, 0.98));
+    border: 2px solid #b944ff;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 420px;
+    box-shadow: 0 12px 40px rgba(185, 68, 255, 0.6), 0 0 30px rgba(185, 68, 255, 0.4);
+    backdrop-filter: blur(10px);
+    z-index: 102;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+
+.ch2-tutorial-bubble.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.ch2-tutorial-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(135deg, rgba(30, 30, 45, 0.98), rgba(20, 20, 30, 0.98));
+    border: 2px solid #b944ff;
+    transform: rotate(45deg);
+    box-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
+}
+
+.ch2-tutorial-header {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(185, 68, 255, 0.3);
+}
+
+.ch2-tutorial-title {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
     color: #b944ff;
-    margin-top: 10px;
+    text-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
+    letter-spacing: 1px;
 }
 
-#saturation-bar {
+.ch2-tutorial-content {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #eeeeee;
+    margin-bottom: 20px;
+}
+
+.ch2-tutorial-content strong {
+    color: #44ffff;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(68, 255, 255, 0.5);
+}
+
+.ch2-tutorial-content em {
+    color: #b944ff;
+    font-style: italic;
+}
+
+.ch2-tutorial-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
     margin-top: 20px;
 }
 
-#bar-container {
-    width: 200px;
-    height: 20px;
-    background-color: #333;
-    border: 1px solid #eeeeee;
-    margin-top: 5px;
-}
-
-#bar-fill {
-    height: 100%;
-    background-color: #b944ff;
-    width: 0%;
-    transition: width 0.1s;
-}
-
-#percentage {
-    margin-top: 5px;
-    text-align: center;
-}
-
-#warning {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 16px;
+.ch2-tutorial-btn {
+    flex: 1;
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
     font-weight: bold;
-    color: #ff4444;
+    border: 2px solid;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.ch2-tutorial-skip {
+    background: rgba(30, 30, 30, 0.6);
+    color: #999999;
+    border-color: #666666;
+}
+
+.ch2-tutorial-skip:hover {
+    background: rgba(40, 40, 40, 0.8);
+    color: #cccccc;
+    border-color: #888888;
+    box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
+}
+
+.ch2-tutorial-next {
+    background: linear-gradient(135deg, rgba(185, 68, 255, 0.3), rgba(185, 68, 255, 0.6));
+    color: #ffffff;
+    border-color: #b944ff;
+    box-shadow: 0 0 15px rgba(185, 68, 255, 0.4);
+}
+
+.ch2-tutorial-next:hover {
+    background: linear-gradient(135deg, rgba(185, 68, 255, 0.6), rgba(185, 68, 255, 0.8));
+    color: #ffffff;
+    box-shadow: 0 0 25px rgba(185, 68, 255, 0.8);
+    transform: translateY(-3px) scale(1.05);
+}
+
+.ch2-tutorial-next:active,
+.ch2-tutorial-skip:active {
+    transform: translateY(0);
+}
+
+/* Progress Dots */
+.ch2-tutorial-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.ch2-tutorial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(185, 68, 255, 0.3);
+    border: 1px solid rgba(185, 68, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.ch2-tutorial-dot.active {
+    background-color: #b944ff;
+    box-shadow: 0 0 10px rgba(185, 68, 255, 0.8);
+    transform: scale(1.3);
+}
+
+/* ============================================
+   ANIMATIONS & EFFECTS
+   ============================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(185, 68, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(185, 68, 255, 0.8);
+    }
+}
+
+/* Dash bar animation when full */
+.ch2-dash-fill[style*="width: 100%"] {
+    animation: glow 1s ease-in-out infinite;
+}
+
+/* Continue button pulse effect */
+@keyframes buttonPulse {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(185, 68, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(185, 68, 255, 0.7);
+    }
+}
+
+.ch2-tutorial-next {
+    animation: buttonPulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    #ch2-dash-meter {
+        bottom: 20px;
+        left: 20px;
+    }
+
+    .ch2-dash-bar {
+        width: 150px;
+        height: 16px;
+    }
+
+    .ch2-dash-label {
+        font-size: 12px;
+    }
+
+    .ch2-tutorial-bubble {
+        max-width: 90%;
+        left: 5% !important;
+        padding: 20px;
+    }
+
+    .ch2-tutorial-title {
+        font-size: 18px;
+    }
+
+    .ch2-tutorial-content {
+        font-size: 13px;
+    }
+
+    .ch2-tutorial-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.ch2-tutorial-btn:focus {
+    outline: 2px solid #b944ff;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .ch2-tutorial-overlay,
+    .ch2-tutorial-bubble,
+    .ch2-tutorial-dot,
+    .ch2-dash-fill {
+        transition: none;
+        animation: none;
+    }
 }

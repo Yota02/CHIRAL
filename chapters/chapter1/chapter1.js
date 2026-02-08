@@ -24,7 +24,7 @@ export class Chapter1 {
         this.moleculeThreshold = 10;
 
         // Seuils & Objectifs
-        this.EVENT_THRESHOLD = 20000;
+        this.EVENT_THRESHOLD = 100000;
 
         // Entites
         this.particles = [];
@@ -131,7 +131,7 @@ export class Chapter1 {
             },
             {
                 title: "Objectif",
-                content: "Produisez <strong>20 000 molécules</strong> pour déclencher la révolution chirale.",
+                content: "Produisez <strong>100 000 molécules</strong> pour déclencher la révolution chirale.",
                 target: '#ch1-total-molecules',
                 placement: 'bottom'
             }
