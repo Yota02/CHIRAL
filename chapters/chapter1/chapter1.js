@@ -90,7 +90,7 @@ export class Chapter1 {
             container: null, money: null, totalMolecules: null, medProgress: null,
             medCount: null, pillsContainer: null, upgrades: [],
             pipetteAnimation: null, beakerFill: null, beaker: null,
-            beakerMolecules: null, flyingMeds: null
+            beakerMolecules: null, flyingMeds: null, journalIcon: null
         };
         this.pillElements = [];
         this.beakerMoleculeElements = [];
@@ -112,19 +112,25 @@ export class Chapter1 {
         this.tutorialSteps = [
             {
                 title: "Chapitre 1 : La Synthèse",
-                content: "Bienvenue dans le laboratoire. Vous allez créer la première <em>bactérie miroir</em>, un organisme à <strong>chiralité inversée</strong>.",
+                content: "Bienvenue dans le laboratoire. Vous êtes un scientifique travaillant pour un laboratoire privé. Votre mission est de créer la première <em>bactérie miroir</em>, un organisme à <strong>chiralité inversée</strong>.",
                 target: null,
                 placement: 'center'
             },
             {
+                title: "Journal de Présentation",
+                content: "En haut à droite, vous trouverez le journal de présentation. Il contient des informations importantes sur la chiralité. Cliquez dessus pour l'ouvrir et en apprendre plus.",
+                target: '#ch1-journal-icon',
+                placement: 'bottom'
+            },
+            {
                 title: "La Bactérie",
-                content: "Cliquez sur la <strong>bactérie</strong> au centre pour produire des molécules manuellement.",
+                content: "La bactérie sur laquelle vous travaillez génère des molécules à l'intérieur de la boîte de pétri.",
                 target: 'canvas-center',
                 placement: 'bottom'
             },
             {
                 title: "Les Médicaments",
-                content: "Toutes les <strong>10 molécules</strong>, un médicament est créé ici. Il génère de l'<strong>argent</strong> tant qu'il est actif.",
+                content: "Toutes les <strong>10 molécules</strong>, un médicament est créé. Il génère de l'<strong>argent</strong> tant qu'il est actif. En effet le corps des patients détruit les médicaments au fil du temps, vous devez donc en produire constamment pour maintenir vos revenus.",
                 target: '#ch1-medications-panel',
                 placement: 'right'
             },
@@ -170,6 +176,7 @@ export class Chapter1 {
 
     // --- CHARGEMENT ---
     async loadChapterUI() {
+        // Charger le CSS
         if (!document.getElementById('chapter1-css')) {
             const link = document.createElement('link');
             link.id = 'chapter1-css';
@@ -179,6 +186,7 @@ export class Chapter1 {
             await new Promise(resolve => { link.onload = resolve; link.onerror = resolve; });
         }
 
+        // Charger le HTML
         if (!document.getElementById('ch1-ui')) {
             const response = await fetch('./chapters/chapter1/chapter1.html');
             const html = await response.text();
@@ -206,6 +214,7 @@ export class Chapter1 {
         this.domElements.beaker = document.querySelector('.ch1-beaker');
         this.domElements.beakerMolecules = document.getElementById('ch1-beaker-molecules');
         this.domElements.flyingMeds = document.getElementById('ch1-flying-meds');
+        this.domElements.journalIcon = document.getElementById('ch1-journal-icon');
 
         this.domElements.upgrades = [];
         for (let i = 0; i < 6; i++) {
@@ -245,6 +254,10 @@ export class Chapter1 {
                 upg.element.addEventListener('click', () => this.buyUpgrade(index));
             }
         });
+
+        if (this.domElements.journalIcon) {
+            this.domElements.journalIcon.addEventListener('click', () => this.triggerChiraliteDisplay());
+        }
     }
 
     setupTutorialHandlers() {
@@ -278,178 +291,98 @@ export class Chapter1 {
         this.hideUI();
     }
 
-    // --- MISE A JOUR DOM ---
-    updateDOM() {
-        // Argent
-        if (this._lastMoney !== Math.floor(this.money)) {
-            this._lastMoney = Math.floor(this.money);
-            if (this.domElements.money) this.domElements.money.textContent = `$ ${this._lastMoney}`;
-        }
-        // Total molecules
-        if (this._lastTotalProduced !== Math.floor(this.totalProduced)) {
-            this._lastTotalProduced = Math.floor(this.totalProduced);
-            if (this.domElements.totalMolecules) this.domElements.totalMolecules.textContent = this._lastTotalProduced;
-        }
-        // Mirror mode (seulement quand ça change)
-        if (this._lastMirrorMode !== this.mirrorMode) {
-            this._lastMirrorMode = this.mirrorMode;
-            if (this.domElements.statLine) this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
+    async triggerChiraliteDisplay() {
+        this.journalDisplayed = true;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'ch1-chiralite-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '1000';
+        overlay.style.fontFamily = 'monospace';
+        overlay.style.color = '#00ff00';
+        overlay.style.whiteSpace = 'pre-wrap';
+        overlay.style.overflowY = 'auto';
+        overlay.style.padding = '20px';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 1s ease';
+
+        try {
+            const response = await fetch('./chapters/chapter1/assets/chiralite.md');
+            const chiraliteContent = await response.text();
+            overlay.innerText = chiraliteContent;
+        } catch (error) {
+            overlay.innerText = 'Erreur lors du chargement de chiralite.';
+            console.error('Erreur chargement chiralite:', error);
         }
 
-        // Progress
-        if (this._lastMoleculesForMed !== this.moleculesForMed) {
-            this._lastMoleculesForMed = this.moleculesForMed;
-            if (this.domElements.medProgress) this.domElements.medProgress.textContent = this.moleculesForMed;
-        }
-        // Threshold
-        if (this._lastMoleculeThreshold !== this.moleculeThreshold) {
-            this._lastMoleculeThreshold = this.moleculeThreshold;
-            if (this.domElements.medThreshold) this.domElements.medThreshold.textContent = this.moleculeThreshold;
-        }
-        // Count
-        if (this._lastMedCount !== this.medications.length) {
-            this._lastMedCount = this.medications.length;
-            if (this.domElements.medCount) this.domElements.medCount.textContent = this.medications.length;
-        }
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.position = 'absolute';
+        buttonContainer.style.bottom = '20px';
+        buttonContainer.style.right = '20px';
+        buttonContainer.style.textAlign = 'right';
 
-        this.updatePillsDisplay();
-        this.updateBeakerDisplay();
-        this.updateUpgradesDisplay();
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = 'Fermer';
+        closeButton.style.fontSize = '24px';
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.color = '#00ff00';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.padding = '10px';
+        closeButton.addEventListener('click', () => {
+            overlay.remove(); 
+            this.journalDisplayed = false;
+        });
+
+        buttonContainer.appendChild(closeButton);
+        overlay.appendChild(buttonContainer);
+
+        document.body.appendChild(overlay);
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+        }, 50);
     }
 
-    updatePillsDisplay() {
-        const container = this.domElements.pillsContainer;
-        if (!container) return;
-        const targetCount = Math.min(this.medications.length, 18);
+    // --- PARTICLES ---
+    spawnParticle(x, y, text, color, flyToBeaker = false, image = null) {
+        this.particles.push({
+            x, y, text, color, life: 1.0, vx: (Math.random() - 0.5) * 60, vy: -50 - Math.random() * 50,
+            flyToBeaker, image, scale: 0.5 + Math.random() * 0.5
+        });
+    }
 
-        // Ajuster le nombre de pilules DOM seulement si nécessaire
-        if (this.pillElements.length !== targetCount) {
-            while (this.pillElements.length < targetCount) {
-                const pill = document.createElement('div');
-                pill.className = 'ch1-pill';
-                pill.innerHTML = '<div class="ch1-pill-left"></div><div class="ch1-pill-right"></div>';
-                container.appendChild(pill);
-                this.pillElements.push(pill);
+    spawnMoleculeBurst(x, y, count) {
+        for (let i = 0; i < count; i++) {
+            this.spawnParticle(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, "", 
+            this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
+        }
+    }
+
+    updateParticles(dt) {
+        let i = this.particles.length;
+        while (i--) {
+            const p = this.particles[i];
+            p.life -= dt;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            if (p.life <= 0) {
+                // Swap-and-pop : O(1) au lieu de O(n) avec splice
+                this.particles[i] = this.particles[this.particles.length - 1];
+                this.particles.pop();
             }
-            while (this.pillElements.length > targetCount) {
-                this.pillElements.pop().remove();
-            }
-        }
-
-        // Mise à jour de l'opacité
-        const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
-        const fullOpacity = this.mirrorMode || hasImmortality;
-        for (let i = 0; i < this.pillElements.length; i++) {
-            const med = this.medications[i];
-            if (med) {
-                const opacity = fullOpacity ? 1.0 : Math.max(0.2, med.life / this.medicationDuration);
-                this.pillElements[i].style.opacity = opacity;
-            }
         }
     }
 
-    updateBeakerDisplay() {
-        if (!this.domElements.beakerFill) return;
-        const fillPercent = (this.moleculesForMed / this.moleculeThreshold) * 100;
-        this.domElements.beakerFill.style.height = `${Math.min(fillPercent, 100)}%`;
-        this.updateBeakerMolecules(fillPercent);
-    }
-
-    updateBeakerMolecules(fillPercent) {
-        if (!this.domElements.beakerMolecules) return;
-        const targetMolecules = Math.floor(fillPercent / 20);
-        if (targetMolecules === this.beakerMoleculeElements.length) return;
-        while (this.beakerMoleculeElements.length < targetMolecules) {
-            const molecule = document.createElement('div');
-            molecule.className = 'ch1-beaker-molecule';
-            molecule.style.cssText = `left:${10 + Math.random() * 60}%;bottom:${5 + Math.random() * (fillPercent * 0.6)}%;animation-delay:${Math.random() * 2}s`;
-            this.domElements.beakerMolecules.appendChild(molecule);
-            this.beakerMoleculeElements.push(molecule);
-        }
-        while (this.beakerMoleculeElements.length > targetMolecules) {
-            this.beakerMoleculeElements.pop().remove();
-        }
-    }
-
-    triggerBeakerEmptyAnimation() {
-        if (!this.domElements.beaker) return;
-        this.domElements.beaker.classList.add('creating');
-        this.beakerMoleculeElements.forEach(mol => mol.remove());
-        this.beakerMoleculeElements = [];
-        setTimeout(() => { this.domElements.beaker.classList.remove('creating'); }, 400);
-    }
-
-    spawnFlyingMedication() {
-        if (!this.domElements.flyingMeds || !this.domElements.pillsContainer || !this.domElements.beaker) return;
-
-        // Cache les rects pendant 500ms pour éviter les reflows répétés
-        const now = performance.now();
-        if (!this._cachedBeakerRect || now - this._rectCacheTime > 500) {
-            this._cachedBeakerRect = this.domElements.beaker.getBoundingClientRect();
-            this._cachedPillsRect = this.domElements.pillsContainer.getBoundingClientRect();
-            this._rectCacheTime = now;
-        }
-
-        const beakerRect = this._cachedBeakerRect;
-        const pillsRect = this._cachedPillsRect;
-
-        const startX = beakerRect.left + beakerRect.width / 2;
-        const startY = beakerRect.top + beakerRect.height / 2;
-        const endX = pillsRect.left + pillsRect.width / 2;
-        const endY = pillsRect.top + pillsRect.height / 2;
-
-        const flyingMed = document.createElement('div');
-        flyingMed.className = 'ch1-flying-med';
-        flyingMed.innerHTML = `<span class="ch1-flying-med-plus">+</span><div class="ch1-flying-med-pill"><div class="ch1-flying-med-pill-left"></div><div class="ch1-flying-med-pill-right"></div></div>`;
-        flyingMed.style.left = `${startX}px`;
-        flyingMed.style.top = `${startY}px`;
-        this.domElements.flyingMeds.appendChild(flyingMed);
-
-        const duration = 800;
-        const startTime = performance.now();
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
-            const currentX = startX + (endX - startX) * easeProgress;
-            const currentY = startY + (endY - startY) * easeProgress - Math.sin(progress * Math.PI) * 50;
-            flyingMed.style.left = `${currentX}px`;
-            flyingMed.style.top = `${currentY}px`;
-
-            if (progress < 1) requestAnimationFrame(animate);
-            else setTimeout(() => flyingMed.remove(), 100);
-        };
-        requestAnimationFrame(animate);
-    }
-
-    updateUpgradesDisplay() {
-        // Ne recalculer que si l'argent ou un upgrade a changé
-        const moneyFloor = Math.floor(this.money);
-        if (!this._upgradesDirty && this._lastMoneyForUpgrades === moneyFloor) return;
-        this._lastMoneyForUpgrades = moneyFloor;
-        this._upgradesDirty = false;
-
-        for (let index = 0; index < this.upgrades.length; index++) {
-            const upgrade = this.upgrades[index];
-            const dom = this.domElements.upgrades[index];
-            if (!dom || !dom.element) continue;
-
-            if (upgrade.hidden) {
-                dom.element.style.display = 'none';
-                continue;
-            } else {
-                dom.element.style.display = 'block';
-            }
-
-            const isMaxed = upgrade.level >= upgrade.maxLevel;
-            const canBuy = moneyFloor >= upgrade.cost && !isMaxed;
-
-            dom.element.classList.toggle('ch1-can-buy', canBuy);
-            dom.element.classList.toggle('ch1-maxed', isMaxed);
-            if (dom.level) dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
-            if (dom.cost) dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
-        }
-    }
+    dist(x1, y1, x2, y2) { return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2); }
 
     // --- UPDATE LOOP ---
     update(deltaTime) {
@@ -500,7 +433,6 @@ export class Chapter1 {
                 this.triggerJournalDisplay();
             }
         }
-        // --- FIN DE LA CORRECTION ---
 
         // Click Input - accès direct pour éviter la copie d'objet
         const mouse = this.game.mouse;
@@ -524,7 +456,7 @@ export class Chapter1 {
 
         // Logic
         this.updateParticles(deltaTime);
-        const hasImmortality = this.upgrades[4].level > 0;
+        const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
         const medCount = this.medications.length;
         this.money += deltaTime * medCount;
         if (!this.mirrorMode && !hasImmortality) {
@@ -682,37 +614,177 @@ export class Chapter1 {
         }, 50);
     }
 
-    // --- PARTICLES ---
-    spawnParticle(x, y, text, color, flyToBeaker = false, image = null) {
-        this.particles.push({
-            x, y, text, color, life: 1.0, vx: (Math.random() - 0.5) * 60, vy: -50 - Math.random() * 50,
-            flyToBeaker, image, scale: 0.5 + Math.random() * 0.5
-        });
+    triggerBeakerEmptyAnimation() {
+        if (!this.domElements.beaker) return;
+        this.domElements.beaker.classList.add('creating');
+        this.beakerMoleculeElements.forEach(mol => mol.remove());
+        this.beakerMoleculeElements = [];
+        setTimeout(() => { this.domElements.beaker.classList.remove('creating'); }, 400);
     }
 
-    spawnMoleculeBurst(x, y, count) {
-        for (let i = 0; i < count; i++) {
-            this.spawnParticle(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, "", 
-            this.mirrorMode ? this.colors.LIFE_MIRROR : this.colors.LIFE_NORMAL, false, this.moleculeImage);
+    spawnFlyingMedication() {
+        if (!this.domElements.flyingMeds || !this.domElements.pillsContainer || !this.domElements.beaker) return;
+
+        // Cache les rects pendant 500ms pour éviter les reflows répétés
+        const now = performance.now();
+        if (!this._cachedBeakerRect || now - this._rectCacheTime > 500) {
+            this._cachedBeakerRect = this.domElements.beaker.getBoundingClientRect();
+            this._cachedPillsRect = this.domElements.pillsContainer.getBoundingClientRect();
+            this._rectCacheTime = now;
         }
+
+        const beakerRect = this._cachedBeakerRect;
+        const pillsRect = this._cachedPillsRect;
+
+        const startX = beakerRect.left + beakerRect.width / 2;
+        const startY = beakerRect.top + beakerRect.height / 2;
+        const endX = pillsRect.left + pillsRect.width / 2;
+        const endY = pillsRect.top + pillsRect.height / 2;
+
+        const flyingMed = document.createElement('div');
+        flyingMed.className = 'ch1-flying-med';
+        flyingMed.innerHTML = `<span class="ch1-flying-med-plus">+</span><div class="ch1-flying-med-pill"><div class="ch1-flying-med-pill-left"></div><div class="ch1-flying-med-pill-right"></div></div>`;
+        flyingMed.style.left = `${startX}px`;
+        flyingMed.style.top = `${startY}px`;
+        this.domElements.flyingMeds.appendChild(flyingMed);
+
+        const duration = 800;
+        const startTime = performance.now();
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            const currentX = startX + (endX - startX) * easeProgress;
+            const currentY = startY + (endY - startY) * easeProgress - Math.sin(progress * Math.PI) * 50;
+            flyingMed.style.left = `${currentX}px`;
+            flyingMed.style.top = `${currentY}px`;
+
+            if (progress < 1) requestAnimationFrame(animate);
+            else setTimeout(() => flyingMed.remove(), 100);
+        };
+        requestAnimationFrame(animate);
     }
 
-    updateParticles(dt) {
-        let i = this.particles.length;
-        while (i--) {
-            const p = this.particles[i];
-            p.life -= dt;
-            p.x += p.vx * dt;
-            p.y += p.vy * dt;
-            if (p.life <= 0) {
-                // Swap-and-pop : O(1) au lieu de O(n) avec splice
-                this.particles[i] = this.particles[this.particles.length - 1];
-                this.particles.pop();
+    updateDOM() {
+        // Argent
+        if (this._lastMoney !== Math.floor(this.money)) {
+            this._lastMoney = Math.floor(this.money);
+            if (this.domElements.money) this.domElements.money.textContent = `$ ${this._lastMoney}`;
+        }
+        // Total molecules
+        if (this._lastTotalProduced !== Math.floor(this.totalProduced)) {
+            this._lastTotalProduced = Math.floor(this.totalProduced);
+            if (this.domElements.totalMolecules) this.domElements.totalMolecules.textContent = this._lastTotalProduced;
+        }
+        // Mirror mode (seulement quand ça change)
+        if (this._lastMirrorMode !== this.mirrorMode) {
+            this._lastMirrorMode = this.mirrorMode;
+            if (this.domElements.statLine) this.domElements.statLine.classList.toggle('ch1-mirror', this.mirrorMode);
+        }
+
+        // Progress
+        if (this._lastMoleculesForMed !== this.moleculesForMed) {
+            this._lastMoleculesForMed = this.moleculesForMed;
+            if (this.domElements.medProgress) this.domElements.medProgress.textContent = this.moleculesForMed;
+        }
+        // Threshold
+        if (this._lastMoleculeThreshold !== this.moleculeThreshold) {
+            this._lastMoleculeThreshold = this.moleculeThreshold;
+            if (this.domElements.medThreshold) this.domElements.medThreshold.textContent = this.moleculeThreshold;
+        }
+        // Count
+        if (this._lastMedCount !== this.medications.length) {
+            this._lastMedCount = this.medications.length;
+            if (this.domElements.medCount) this.domElements.medCount.textContent = this.medications.length;
+        }
+
+        this.updatePillsDisplay();
+        this.updateBeakerDisplay();
+        this.updateUpgradesDisplay();
+    }
+
+    updatePillsDisplay() {
+        const container = this.domElements.pillsContainer;
+        if (!container) return;
+        const targetCount = Math.min(this.medications.length, 18);
+
+        // Ajuster le nombre de pilules DOM seulement si nécessaire
+        if (this.pillElements.length !== targetCount) {
+            while (this.pillElements.length < targetCount) {
+                const pill = document.createElement('div');
+                pill.className = 'ch1-pill';
+                pill.innerHTML = '<div class="ch1-pill-left"></div><div class="ch1-pill-right"></div>';
+                container.appendChild(pill);
+                this.pillElements.push(pill);
+            }
+            while (this.pillElements.length > targetCount) {
+                this.pillElements.pop().remove();
+            }
+        }
+
+        // Mise à jour de l'opacité
+        const hasImmortality = this.upgrades[4] && this.upgrades[4].level > 0;
+        const fullOpacity = this.mirrorMode || hasImmortality;
+        for (let i = 0; i < this.pillElements.length; i++) {
+            const med = this.medications[i];
+            if (med) {
+                const opacity = fullOpacity ? 1.0 : Math.max(0.2, med.life / this.medicationDuration);
+                this.pillElements[i].style.opacity = opacity;
             }
         }
     }
 
-    dist(x1, y1, x2, y2) { return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2); }
+    updateBeakerDisplay() {
+        if (!this.domElements.beakerFill) return;
+        const fillPercent = (this.moleculesForMed / this.moleculeThreshold) * 100;
+        this.domElements.beakerFill.style.height = `${Math.min(fillPercent, 100)}%`;
+        this.updateBeakerMolecules(fillPercent);
+    }
+
+    updateBeakerMolecules(fillPercent) {
+        if (!this.domElements.beakerMolecules) return;
+        const targetMolecules = Math.floor(fillPercent / 20);
+        if (targetMolecules === this.beakerMoleculeElements.length) return;
+        while (this.beakerMoleculeElements.length < targetMolecules) {
+            const molecule = document.createElement('div');
+            molecule.className = 'ch1-beaker-molecule';
+            molecule.style.cssText = `left:${10 + Math.random() * 60}%;bottom:${5 + Math.random() * (fillPercent * 0.6)}%;animation-delay:${Math.random() * 2}s`;
+            this.domElements.beakerMolecules.appendChild(molecule);
+            this.beakerMoleculeElements.push(molecule);
+        }
+        while (this.beakerMoleculeElements.length > targetMolecules) {
+            this.beakerMoleculeElements.pop().remove();
+        }
+    }
+
+    updateUpgradesDisplay() {
+        // Ne recalculer que si l'argent ou un upgrade a changé
+        const moneyFloor = Math.floor(this.money);
+        if (!this._upgradesDirty && this._lastMoneyForUpgrades === moneyFloor) return;
+        this._lastMoneyForUpgrades = moneyFloor;
+        this._upgradesDirty = false;
+
+        for (let index = 0; index < this.upgrades.length; index++) {
+            const upgrade = this.upgrades[index];
+            const dom = this.domElements.upgrades[index];
+            if (!dom || !dom.element) continue;
+
+            if (upgrade.hidden) {
+                dom.element.style.display = 'none';
+                continue;
+            } else {
+                dom.element.style.display = 'block';
+            }
+
+            const isMaxed = upgrade.level >= upgrade.maxLevel;
+            const canBuy = moneyFloor >= upgrade.cost && !isMaxed;
+
+            dom.element.classList.toggle('ch1-can-buy', canBuy);
+            dom.element.classList.toggle('ch1-maxed', isMaxed);
+            if (dom.level) dom.level.textContent = `Niveau: ${upgrade.level}/${upgrade.maxLevel}`;
+            if (dom.cost) dom.cost.textContent = isMaxed ? 'MAX' : `$${upgrade.cost}`;
+        }
+    }
 
     // --- DRAW ---
     draw(ctx) {

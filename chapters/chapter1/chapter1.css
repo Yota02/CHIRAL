@@ -598,8 +598,30 @@
 }
 
 /* =============================================
-   RESPONSIVE
-   ============================================= */
+    IMAGE JOURNAL
+    ============================================= */
+
+.ch1-journal-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 16;
+    transition: transform 0.2s ease;
+}
+
+.ch1-journal-icon:hover {
+    transform: scale(1.1);
+}
+
+.ch1-journal-icon img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
 
 @media (max-width: 768px) {
     .ch1-panel {
