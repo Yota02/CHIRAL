@@ -29,6 +29,20 @@ export class Chapter4 {
         this.worldHeight = 800;
         this.groundY = 0; // sera calcule dans init
 
+        // Images
+        this.sourisImg = new Image();
+        this.sourisImg.src = 'img/chapitre4/souris.png';
+        this.arbreImg = new Image();
+        this.arbreImg.src = 'img/chapitre4/arbre.png';
+        this.fauconImg = new Image();
+        this.fauconImg.src = 'img/chapitre4/faucon.png';
+        this.chatImg = new Image();
+        this.chatImg.src = 'img/chapitre4/chat.png';
+        this.chimpanzeImg = new Image();
+        this.chimpanzeImg.src = 'img/chapitre4/chimpanze.png';
+        this.chienImg = new Image();
+        this.chienImg.src = 'img/chapitre4/chien.png';
+
         // Bacterie (projectile)
         this.bacteria = {
             x: 0, y: 0,
@@ -41,7 +55,7 @@ export class Chapter4 {
 
         // Gravite et puissance
         this.gravity = 600;
-        this.maxPower = 700;
+        this.maxPower = 800;
         this.minPower = 80;
         this.maxAimDistance = 250; // distance souris max pour puissance max
 
@@ -138,6 +152,16 @@ export class Chapter4 {
         // (le clic sur "CONTINUER" du dialogue precedent pourrait persister)
         this.mouseClicked = false;
 
+        this._onSkipIntro = (e) => {
+            if (e.key === 'Escape' && this.phase === 'intro') {
+                this.game.dialogueQueue = [];
+                this.game.hideDialogue();
+                this.phase = 'aiming';
+                this.mouseClicked = false;
+            }
+        };
+        window.addEventListener('keydown', this._onSkipIntro);
+
         this.game.showDialogue([
             "An 2045 - La bacterie miroir a mute.",
             "Elle peut desormais infecter les organismes multicellulaires.",
@@ -157,43 +181,56 @@ export class Chapter4 {
         const animalDefs = [
             {
                 type: 'souris', name: 'Souris',
-                width: 30, height: 20, color: '#aa8866',
+                width: 120, height: 80, color: '#aa8866',
                 resistance: 0, speed: 0,
                 description: 'Petit mammifere - Hote initial'
             },
             {
-                type: 'oiseau', name: 'Moineau',
-                width: 25, height: 20, color: '#cc9944',
+                type: 'oiseau', name: 'Faucon',
+                width: 240, height: 240, color: '#cc9944',
                 resistance: 1, speed: 40,
                 description: 'Oiseau - Vecteur aerien rapide'
             },
             {
                 type: 'rat', name: 'Rat',
-                width: 40, height: 25, color: '#887766',
+                width: 160, height: 100, color: '#887766',
                 resistance: 1, speed: 0,
                 description: 'Rongeur - Reservoir naturel'
             },
             {
+                type: 'oiseau', name: 'Faucon',
+                width: 240, height: 240, color: '#cc9944',
+                resistance: 2, speed: 50,
+                description: 'Oiseau - Vecteur aerien rapide'
+            },
+            {
                 type: 'chat', name: 'Chat',
-                width: 50, height: 35, color: '#ddaa77',
+                width: 200, height: 140, color: '#ddaa77',
                 resistance: 2, speed: 25,
+                spriteIndex: Math.floor(Math.random() * 4),
                 description: 'Felin - Predateur opportuniste'
             },
             {
                 type: 'chien', name: 'Chien',
-                width: 60, height: 45, color: '#bb8855',
+                width: 240, height: 180, color: '#bb8855',
                 resistance: 2, speed: 15,
                 description: 'Canide - Contact humain frequent'
             },
             {
+                type: 'oiseau', name: 'Faucon',
+                width: 240, height: 240, color: '#cc9944',
+                resistance: 3, speed: 60,
+                description: 'Oiseau - Vecteur aerien rapide'
+            },
+            {
                 type: 'cochon', name: 'Cochon',
-                width: 70, height: 50, color: '#eea8a8',
+                width: 280, height: 200, color: '#eea8a8',
                 resistance: 3, speed: 0,
                 description: 'Porcin - Creuset genetique ideal'
             },
             {
                 type: 'singe', name: 'Singe',
-                width: 45, height: 55, color: '#aa7744',
+                width: 180, height: 220, color: '#aa7744',
                 resistance: 3, speed: 30,
                 description: 'Primate - Proche cousin genetique'
             },
@@ -211,22 +248,21 @@ export class Chapter4 {
             const spacing = 400 + Math.random() * 300;
 
             let yOffset = 0;
-            if (def.type === 'oiseau') yOffset = -120;
-            if (def.type === 'singe') yOffset = -80;
-            if (def.type === 'chat') yOffset = -40;
+            if (def.type === 'oiseau') yOffset = -300;
 
+            const animalY = def.type === 'oiseau' ? groundY + yOffset : groundY;
             const animal = {
                 ...def,
                 x: xPos,
-                y: groundY - def.height / 2 + yOffset,
+                y: animalY,
                 baseX: xPos,
-                baseY: groundY - def.height / 2 + yOffset,
+                baseY: animalY,
                 infected: i === 0,
                 moveTimer: Math.random() * Math.PI * 2,
                 moveRange: def.speed > 0 ? 60 : 0,
                 hitRadius: Math.max(def.width, def.height) / 2 + 15,
                 pulseTime: 0,
-                platformY: yOffset < 0 ? groundY + yOffset : 0
+                platformY: 0
             };
 
             this.animals.push(animal);
@@ -237,13 +273,14 @@ export class Chapter4 {
     }
 
     createBackground() {
-        for (let x = 0; x < this.worldWidth; x += 80 + Math.random() * 120) {
+        for (let x = 0; x < this.worldWidth; x += 40 + Math.random() * 80) {
             const type = Math.random();
-            if (type < 0.3) {
+            if (type < 0.5) {
                 this.bgElements.push({
                     type: 'tree', x: x, y: this.groundY,
-                    height: 80 + Math.random() * 60,
-                    width: 20 + Math.random() * 15
+                    height: 150 + Math.random() * 100,
+                    width: 20 + Math.random() * 15,
+                    treeIndex: Math.floor(Math.random() * 4)
                 });
             } else if (type < 0.5) {
                 this.bgElements.push({
@@ -577,12 +614,23 @@ export class Chapter4 {
             if (elem.x < startX - 100 || elem.x > endX + 100) continue;
 
             if (elem.type === 'tree') {
-                ctx.fillStyle = '#2a1a0a';
-                ctx.fillRect(elem.x - elem.width / 4, elem.y - elem.height, elem.width / 2, elem.height);
-                ctx.fillStyle = '#1a3a1a';
-                ctx.beginPath();
-                ctx.arc(elem.x, elem.y - elem.height, elem.width, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.arbreImg.complete && this.arbreImg.naturalWidth > 0) {
+                    const cols = 2, rows = 2;
+                    const sw = this.arbreImg.naturalWidth / cols;
+                    const sh = this.arbreImg.naturalHeight / rows;
+                    const sx = (elem.treeIndex % cols) * sw;
+                    const sy = Math.floor(elem.treeIndex / cols) * sh;
+                    const drawH = elem.height;
+                    const drawW = drawH * (sw / sh);
+                    ctx.drawImage(this.arbreImg, sx, sy, sw, sh, elem.x - drawW / 2, elem.y - drawH, drawW, drawH);
+                } else {
+                    ctx.fillStyle = '#2a1a0a';
+                    ctx.fillRect(elem.x - elem.width / 4, elem.y - elem.height, elem.width / 2, elem.height);
+                    ctx.fillStyle = '#1a3a1a';
+                    ctx.beginPath();
+                    ctx.arc(elem.x, elem.y - elem.height, elem.width, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             } else if (elem.type === 'rock') {
                 ctx.fillStyle = '#333340';
                 ctx.beginPath();
@@ -642,14 +690,14 @@ export class Chapter4 {
         const infected = this.infectedAnimals.has(index);
         const isCurrentTarget = index === this.currentAnimalIndex + 1;
         const isCurrent = index === this.currentAnimalIndex;
-        const pulse = Math.sin(animal.pulseTime * 3) * 0.1 + 0.9;
+        const pulse = 1;
 
         ctx.save();
         ctx.translate(animal.x, animal.y);
 
         if (isCurrentTarget && this.phase === 'aiming') {
             ctx.shadowColor = this.colors.LIFE_MIRROR;
-            ctx.shadowBlur = 15 + Math.sin(this.time * 4) * 8;
+            ctx.shadowBlur = 0;
         }
 
         const baseColor = infected ? this.colors.DANGER : animal.color;
@@ -659,20 +707,10 @@ export class Chapter4 {
 
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = infected ? this.colors.DANGER : this.colors.UI_DIM;
-        ctx.font = '10px Courier New';
-        ctx.textAlign = 'center';
-        ctx.fillText(animal.name, 0, animal.height / 2 + 18);
-
-        if (infected && !isCurrent) {
-            ctx.fillStyle = this.colors.DANGER;
-            ctx.font = 'bold 8px Courier New';
-            ctx.fillText('INFECTE', 0, -animal.height / 2 - 10);
-        }
-
         if (isCurrentTarget && this.phase === 'aiming') {
             ctx.fillStyle = this.colors.LIFE_MIRROR;
             ctx.font = '9px Courier New';
+            ctx.textAlign = 'center';
             const stars = '\u2605'.repeat(animal.resistance + 1);
             ctx.fillText(stars, 0, -animal.height / 2 - 18);
             ctx.fillStyle = this.colors.UI_DIM;
@@ -688,167 +726,70 @@ export class Chapter4 {
 
         switch (animal.type) {
             case 'souris':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(-w / 4, -h / 2, 6, 0, Math.PI * 2);
-                ctx.arc(w / 4, -h / 2, 6, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(w / 2, 0);
-                ctx.quadraticCurveTo(w / 2 + 15, -10, w / 2 + 20, 5);
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-w / 6, -3, 2, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.sourisImg.complete && this.sourisImg.naturalWidth > 0) {
+                    ctx.drawImage(this.sourisImg, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'oiseau':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, w / 2, h / 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(-w / 3, -h / 4, h / 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = '#ffaa00';
-                ctx.beginPath();
-                ctx.moveTo(-w / 2, -h / 4);
-                ctx.lineTo(-w / 2 - 8, -h / 4 + 2);
-                ctx.lineTo(-w / 2, -h / 4 + 4);
-                ctx.fill();
-                ctx.fillStyle = color + 'cc';
-                ctx.beginPath();
-                ctx.moveTo(0, -h / 4);
-                ctx.quadraticCurveTo(w / 4, -h, w / 2, -h / 4);
-                ctx.fill();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-w / 3 - 2, -h / 3, 1.5, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.fauconImg.complete && this.fauconImg.naturalWidth > 0) {
+                    const cols = 5, rows = 5, totalFrames = 25;
+                    const frameW = this.fauconImg.naturalWidth / cols;
+                    const frameH = this.fauconImg.naturalHeight / rows;
+                    const frame = Math.floor(this.time * 12) % totalFrames;
+                    const sx = (frame % cols) * frameW;
+                    const sy = Math.floor(frame / cols) * frameH;
+                    ctx.drawImage(this.fauconImg, sx, sy, frameW, frameH, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2, h / 3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'rat':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, w / 2, h / 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(-w / 2, -h / 6);
-                ctx.lineTo(-w / 2 - 12, 0);
-                ctx.lineTo(-w / 2, h / 6);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-w / 4, -h / 2, 7, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(w / 2, 0);
-                ctx.bezierCurveTo(w / 2 + 10, -15, w / 2 + 25, 10, w / 2 + 30, -5);
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-w / 4, -2, 2, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.sourisImg.complete && this.sourisImg.naturalWidth > 0) {
+                    ctx.drawImage(this.sourisImg, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2, h / 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'chat':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 3, w / 2, h / 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(-w / 3, -h / 4, h / 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(-w / 3 - 8, -h / 2);
-                ctx.lineTo(-w / 3 - 5, -h / 2 - 12);
-                ctx.lineTo(-w / 3 - 2, -h / 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(-w / 3 + 2, -h / 2);
-                ctx.lineTo(-w / 3 + 5, -h / 2 - 12);
-                ctx.lineTo(-w / 3 + 8, -h / 2);
-                ctx.fill();
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(w / 2, 0);
-                ctx.bezierCurveTo(w / 2 + 15, -20, w / 2 + 25, -25, w / 2 + 20, -30);
-                ctx.stroke();
-                ctx.fillStyle = '#44ff44';
-                ctx.beginPath();
-                ctx.arc(-w / 3 - 4, -h / 4 - 2, 2.5, 0, Math.PI * 2);
-                ctx.arc(-w / 3 + 4, -h / 4 - 2, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.ellipse(-w / 3 - 4, -h / 4 - 2, 1, 2.5, 0, 0, Math.PI * 2);
-                ctx.ellipse(-w / 3 + 4, -h / 4 - 2, 1, 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.chatImg.complete && this.chatImg.naturalWidth > 0) {
+                    const cols = 2, rows = 2;
+                    const sw = this.chatImg.naturalWidth / cols;
+                    const sh = this.chatImg.naturalHeight / rows;
+                    const idx = animal.spriteIndex || 0;
+                    const sx = (idx % cols) * sw;
+                    const sy = Math.floor(idx / cols) * sh;
+                    ctx.drawImage(this.chatImg, sx, sy, sw, sh, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2, h / 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'chien':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 3, w / 2, h / 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(-w / 3, -h / 4, h / 2.8, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(-w / 2, -h / 6, 8, 5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#222';
-                ctx.beginPath();
-                ctx.arc(-w / 2 - 3, -h / 6, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = color + 'cc';
-                ctx.beginPath();
-                ctx.ellipse(-w / 3 - 10, -h / 4 + 5, 6, 12, -0.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(-w / 3 + 8, -h / 4 + 5, 6, 12, 0.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = color;
-                ctx.fillRect(-w / 3, h / 3, 8, 12);
-                ctx.fillRect(w / 4, h / 3, 8, 12);
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(w / 2, -5);
-                ctx.quadraticCurveTo(w / 2 + 15, -20, w / 2 + 10, -25);
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-w / 3 - 4, -h / 3, 2, 0, Math.PI * 2);
-                ctx.arc(-w / 3 + 4, -h / 3, 2, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.chienImg.complete && this.chienImg.naturalWidth > 0) {
+                    ctx.drawImage(this.chienImg, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2, h / 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'cochon':
@@ -899,46 +840,14 @@ export class Chapter4 {
                 break;
 
             case 'singe':
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 5, w / 2.5, h / 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = outlineColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(0, -h / 3, h / 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = '#ddbb88';
-                ctx.beginPath();
-                ctx.ellipse(0, -h / 3 + 3, h / 6, h / 5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#ddbb88';
-                ctx.beginPath();
-                ctx.arc(-h / 4 - 2, -h / 3, 5, 0, Math.PI * 2);
-                ctx.arc(h / 4 + 2, -h / 3, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(-w / 3, 0);
-                ctx.quadraticCurveTo(-w / 2 - 10, h / 3, -w / 3 - 5, h / 2);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(w / 3, 0);
-                ctx.quadraticCurveTo(w / 2 + 10, h / 3, w / 3 + 5, h / 2);
-                ctx.stroke();
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(0, h / 2.5);
-                ctx.bezierCurveTo(15, h / 2, 25, h / 3, 20, 0);
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-5, -h / 3 - 2, 2, 0, Math.PI * 2);
-                ctx.arc(5, -h / 3 - 2, 2, 0, Math.PI * 2);
-                ctx.fill();
+                if (this.chimpanzeImg.complete && this.chimpanzeImg.naturalWidth > 0) {
+                    ctx.drawImage(this.chimpanzeImg, -w / 2, -h / 2, w, h);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, w / 2.5, h / 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 break;
 
             case 'humain':
@@ -991,7 +900,7 @@ export class Chapter4 {
         const r = b.radius * pulse;
 
         ctx.shadowColor = this.colors.DANGER;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 0;
 
         ctx.fillStyle = this.colors.DANGER;
         ctx.beginPath();
@@ -1078,7 +987,7 @@ export class Chapter4 {
         ctx.strokeStyle = this.colors.DANGER;
         ctx.lineWidth = 3;
         ctx.shadowColor = this.colors.DANGER;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.moveTo(b.x, b.y);
         ctx.lineTo(endX, endY);
@@ -1227,6 +1136,7 @@ export class Chapter4 {
         window.removeEventListener('mousedown', this._onMouseDown);
         window.removeEventListener('touchstart', this._onTouchStart);
         window.removeEventListener('touchmove', this._onTouchMove);
+        window.removeEventListener('keydown', this._onSkipIntro);
 
         this.animals = [];
         this.particles = [];

@@ -1,0 +1,12 @@
+{
+  "name": "victoria-miroire-multiplayer",
+  "version": "1.0.0",
+  "description": "Chapitre 3 Multijoueur - Survie bacterienne competitive",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

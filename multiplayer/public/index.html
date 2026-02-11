@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victoria Miroire - Multijoueur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Lobby Overlay -->
+    <div id="lobby-overlay" class="lobby-overlay active">
+        <div class="lobby-box">
+            <h1 class="lobby-title">LA MUTATION</h1>
+            <h2 class="lobby-subtitle">Mode Multijoueur</h2>
+
+            <div id="lobby-join" class="lobby-section">
+                <label class="lobby-label">Votre nom :</label>
+                <input id="player-name" type="text" class="lobby-input" maxlength="16" placeholder="Entrez votre nom..." autofocus>
+                <button id="btn-join" class="lobby-btn lobby-btn-join">REJOINDRE</button>
+            </div>
+
+            <div id="lobby-waiting" class="lobby-section hidden">
+                <div class="lobby-label">Joueurs connectes :</div>
+                <div id="player-list" class="player-list"></div>
+                <div id="lobby-host-controls" class="hidden">
+                    <button id="btn-start" class="lobby-btn lobby-btn-start">LANCER LA PARTIE</button>
+                </div>
+                <div id="lobby-wait-msg" class="lobby-wait-msg">En attente du lancement...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Overlay -->
+    <div id="victory-overlay" class="victory-overlay hidden">
+        <div class="victory-box">
+            <h1 class="victory-title">VICTOIRE</h1>
+            <div id="victory-name" class="victory-name"></div>
+            <div class="victory-sub">a atteint 30 000 de population !</div>
+            <button id="btn-replay" class="lobby-btn lobby-btn-join">REJOUER</button>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="game-hud" class="game-hud hidden">
+        <!-- Top Left: own stats -->
+        <div id="hud-left">
+            <div class="hud-stat">
+                <div class="hud-label">POPULATION</div>
+                <div class="hud-stat-row">
+                    <span id="hud-pop" class="hud-value">1</span>
+                    <span class="hud-target">/ 30 000</span>
+                </div>
+                <div class="hud-bar-container">
+                    <div id="hud-pop-bar" class="hud-bar hud-bar-pop"></div>
+                </div>
+            </div>
+            <div class="hud-stat">
+                <div class="hud-label">NOURRITURE</div>
+                <div class="hud-stat-row">
+                    <span id="hud-food" class="hud-value">0</span>
+                </div>
+                <div class="hud-bar-container">
+                    <div id="hud-food-bar" class="hud-bar hud-bar-food"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Right: timer + scoreboard -->
+        <div id="hud-right">
+            <div class="hud-timer-box">
+                <div class="hud-label">DIVISION</div>
+                <div id="hud-timer" class="hud-timer">20s</div>
+            </div>
+            <div class="hud-label" style="margin-top:12px;">CLASSEMENT</div>
+            <div id="scoreboard" class="scoreboard"></div>
+        </div>
+
+        <!-- Warning Center -->
+        <div id="hud-warning" class="hud-warning hidden">DIVISION IMMINENTE</div>
+
+        <!-- Minimap Bottom Right -->
+        <div id="minimap-container">
+            <canvas id="minimap" width="150" height="150"></canvas>
+        </div>
+    </div>
+
+    <script src="network.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
