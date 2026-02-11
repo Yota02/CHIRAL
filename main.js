@@ -37,7 +37,7 @@ const CHAPTERS_DATA = [
     { date: 'An 2025', title: 'Chapitre 1 : La Synthese', class: Chapter1 },
     { date: 'An 2026', title: 'Chapitre 2 : L\'Invisible', class: Chapter2 },
     { date: 'An 2030', title: 'Chapitre 3 : La Grande Mutation', class: Chapter3 },
-    { date: 'An 2045', title: 'Chapitre 4 : La Forteresse', class: Chapter4 },
+    { date: 'An 2045', title: 'Chapitre 4 : La Propagation', class: Chapter4 },
     { date: 'An 2080', title: 'Chapitre 5 : Le Desert Silencieux', class: Chapter5 }
 ];
 
@@ -187,7 +187,7 @@ class Game {
     startGame() {
         this.titleScreen.classList.remove('active');
         this.titleScreen.classList.add('hidden');
-        this.startChapter(0);  // Démarrer au chapitre 1 (index 0)
+        this.startChapter(3);  // Démarrer au chapitre 4 (index 3)
     }
 
     startChapter(chapterIndex) {

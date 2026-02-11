@@ -52,16 +52,8 @@ jeux de platforme en 2d ou on joue une bactérie qui essaye de s'echapper d'un l
 * **Contexte :** 
 Ce jeux se place sur une carte vue du dessus (top-down) représentant la flaque d'eau à l'extérieur du laboratoire. Elle doit être grande mais limité dans l'espace (ex: 8000x8000 pixels). On doit avoir une vue sur l'amas de bactérie qu'on controlle grace a la souris et en ce deplacant dans la flaque. On commence avec une bactérie se trouvant maintenant dans la flaque et essaye de survivre et de se multiplier. Pour cela elle est en compétition avec des bactéries normales (vertes) pour les ressources (nourriture). Toute les 20 s le nombre de bactérie est doublé par 2 et donc les besoins en nourriture sont doublé si le nombre de nouriture n'est pas suffisant alors on supprime toute les bactérie qui ne peuvent être nourie. Le joueur doit gérer la croissance de sa population tout en évitant l'extinction du au manque de nourriture. Il y a des points qui apparaisse aléatoirement sur la map et qu'on doit récupéré pour amélioré notre population. Une fois que la population a atteind une population de 30000 une des bactérie mute (devient rouge). Et c'est ainsi que le chapitre 3 se termine avec un gros zoom sur la bactérie rouge qui représente la menace ultime. 
 
-### Chapitre 4 : La Forteresse (Rythme/Gestion)
-* **Contexte :** Survivre dans un dôme en convertissant la matière miroir en nourriture comestible.
-* **Mécanique :** Jeu de rythme ou Quick Time Event (QTE).
-* **Gameplay :**
-    * Une jauge "Faim de la population" descend vite.
-    * Une machine "Convertisseur Chiral" est au centre.
-    * Des formes géométriques arrivent. Le joueur doit appuyer sur la bonne touche au bon moment pour inverser la chiralité (passer du Violet au Vert).
-    * Si succès : La jauge remonte.
-    * Le jeu dure 30-60 secondes. La survie est assurée, mais confinée.
-* **Message de fin :** "Systèmes nominaux. La colonie survit. L'extérieur est perdu."
+### Chapitre 4 : 
+Je voudrais que ce chapitre 4 soit un jeu 2D, ou on joue la bactérie rouge qui a muté et doit passé d'un animaux a un autre. Pour ce faire je voudrais un jeux ou on doit avec une fleche pointé, ce doit être un peux comme angry birds. Et l'objectif c'est de sauté d'un animal a un autre pour se propager. On doit viser avec la souris et ajuster la puissance du saut pour atteindre l'animal suivant. Chaque animal représente une espèce différente (ex: oiseau, mammifère, reptile) et a des caractéristiques uniques (ex: vitesse, taille, résistance). Le joueur doit choisir les bons animaux pour maximiser la propagation de la bactérie rouge. Le chapitre se termine lorsque la bactérie rouge atteint un humain, symbolisant la contamination finale.
 
 ### Chapitre 5 : Le Désert Silencieux (Narratif)
 * **Contexte :** 50 ans plus tard, une expédition dehors.
